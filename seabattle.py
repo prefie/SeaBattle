@@ -15,7 +15,7 @@ def main():
         print('''Используйте: seabattle.py [height] [width] [max_size_ship]''')
         sys.exit(0)
 
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 5:
         print('Некорректный запуск приложения. Введите seabattle.py --help')
         sys.exit(ERROR_EXCEPTION)
 
@@ -23,11 +23,12 @@ def main():
         height = int(sys.argv[1])
         width = int(sys.argv[2])
         max_size_ship = int(sys.argv[3])
+        level = int(sys.argv[4])
     except Exception:
         print('Некорректный запуск приложения. Введите seabattle.py --help')
         sys.exit(ERROR_EXCEPTION)
 
-    game = Game(width, height, max_size_ship, 1)
+    game = Game(width, height, max_size_ship, level)
     interface = Interface(game)
     game.start()
 

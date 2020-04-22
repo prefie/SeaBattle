@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from battle.game import Game
-from battle.logic import *
+from battle.game import *
 from battle.botAI import BotAI
 
 
@@ -26,11 +25,16 @@ class Tests(unittest.TestCase):
 
         self.assertTrue(field.shots[cell])
 
-    def test_random_shot_level_1(self):
+    def test_bot_shot_level_1(self):
         field = Field(10, 20, 5)
         cell = BotAI.shot_level_1(field)
-        self.assertTrue(cell == ResultShot.MISS or
-                        cell == ResultShot.HIT)
+        self.assertIsNotNone(cell)
+        self.assertTrue(len(field.shots) > 0)
+
+    def test_bot_shot_level_2(self):
+        field = Field(10, 20, 5)
+        cell = BotAI.shot_level_2(field)
+        self.assertIsNotNone(cell)
         self.assertTrue(len(field.shots) > 0)
 
     def test_start_game(self):

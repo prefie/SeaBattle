@@ -123,6 +123,11 @@ class Field:
         self.ships.append(ship)
         self._completion_dict_ships(ship)
 
+    def check_shot(self, x, y):
+        """По координатам проверяет, содержится ли точка в
+        списке выстрелов по полю"""
+        return Cell(x, y) in self.shots
+
     def _check_alive_neighbors(self, cell):  # Есть ли живые соседи
         """Возвращает True, если есть живые клетки-соседи на поле"""
         for i in range(-1, 2):

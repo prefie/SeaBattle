@@ -12,7 +12,7 @@ def main():
     """Точка входа в приложение"""
     if (len(sys.argv) > 1 and
             (sys.argv[1] == '--help' or sys.argv[1] == '-h')):
-        print('''Используйте: seabattle.py [height] [width] [max_size_ship]''')
+        print('''Используйте: seabattle.py [height] [width] [max_size_ship] [level]''')
         sys.exit(0)
 
     if len(sys.argv) < 5:

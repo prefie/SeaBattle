@@ -25,7 +25,7 @@
 
 ## Консольная версия
 Справка по запуску: `./seabattle.py --help`
-(Используйте: seabattle.py [height_field] [width_field] [max_size_ships])
+(Используйте: seabattle.py [height_field] [width_field] [max_size_ships] [bot_level])
 
 Пример запуска: `./seabattle.py 10 10 4`
 

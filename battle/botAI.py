@@ -1,7 +1,7 @@
 """Модуль реализует искусственный интеллект игры «Морской бой»"""
 
 import random
-import time
+
 
 class BotAI:
     @classmethod

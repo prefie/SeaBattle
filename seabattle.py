@@ -43,7 +43,7 @@ def main():
         else:
             game.shot()
 
-    print('Вин игрок' if game.player_is_win() else 'Вин тачка')
+    interface.the_end(game.player_is_win())
 
 
 if __name__ == '__main__':

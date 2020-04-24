@@ -53,23 +53,10 @@ class Interface:
         for i in self.game.player.field.cells:
             self.win_player.addstr(i.y + 1, (i.x + 1) * 2 - 1, '#')
 
-        for i in self.game.player.field.shots:
-            if self.game.player.field.shots[i]:
-                self.win_player.addstr(
-                    i.y + 1, (i.x + 1) * 2 - 1, 'X', curses.color_pair(1))
-            else:
-                self.win_player.addstr(
-                    i.y + 1, (i.x + 1) * 2 - 1, 'o', curses.color_pair(2))
-        self.win_player.refresh()
-
-        for i in self.game.bot.field.shots:
-            if self.game.bot.field.shots[i]:
-                self.win_bot.addstr(
-                    i.y + 1, (i.x + 1) * 2 - 1, 'X', curses.color_pair(1))
-            else:
-                self.win_bot.addstr(
-                    i.y + 1, (i.x + 1) * 2 - 1, 'o', curses.color_pair(2))
-        self.win_bot.refresh()
+        self._print_result_shot(self.game.player.field.shots,
+                                self.win_player)
+        self._print_result_shot(self.game.bot.field.shots,
+                                self.win_bot)
 
         curses.curs_set(0)
         self.win_player.box()
@@ -77,6 +64,17 @@ class Interface:
         self.window.refresh()
         self.win_player.refresh()
         self.win_bot.refresh()
+
+    @staticmethod
+    def _print_result_shot(shots, win):
+        for i in shots:
+            if shots[i]:
+                win.addstr(
+                    i.y + 1, (i.x + 1) * 2 - 1, 'X', curses.color_pair(1))
+            else:
+                win.addstr(
+                    i.y + 1, (i.x + 1) * 2 - 1, 'o', curses.color_pair(2))
+        win.refresh()
 
     def click_user(self):
         self.update()

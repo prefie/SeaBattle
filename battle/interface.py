@@ -26,8 +26,8 @@ class Interface:
         except Exception:
             print('Расширьте окно консоли и запустите приложение заново')
             sys.exit(1)
-        self.win_player.keypad(1)
-        self.win_bot.keypad(1)
+        self.win_player.keypad(True)
+        self.win_bot.keypad(True)
         self.win_player.box()
         self.win_bot.box()
         for i in range(1, self.dx - 1):
@@ -79,6 +79,7 @@ class Interface:
         self.win_bot.refresh()
 
     def click_user(self):
+        self.update()
         key = self.win_bot.getch()
         if key == ord('q'):
             curses.endwin()
@@ -101,6 +102,7 @@ class Interface:
         self._clear()
         winner = 'Игрок' if player_win else 'Искусственный интеллект'
         while True:
+            curses.curs_set(0)
             y, x = self.window.getmaxyx()
             try:
                 self.win_end = curses.newwin(3, (10+len(winner)),

@@ -79,7 +79,6 @@ class Interface:
         self.win_bot.refresh()
 
     def click_user(self):
-        self.update()
         key = self.win_bot.getch()
         if key == ord('q'):
             curses.endwin()
@@ -99,13 +98,13 @@ class Interface:
         return self.click_user()
 
     def the_end(self, player_win):
-        self.clear()
+        self._clear()
         winner = 'Игрок' if player_win else 'Искусственный интеллект'
         while True:
             y, x = self.window.getmaxyx()
             try:
                 self.win_end = curses.newwin(3, (10+len(winner)),
-                                             y // 2 - 1, x // 2 - 16)
+                                             y // 2 - 1, x // 2 - (10+len(winner))//2)
                 self.win_end.addstr(1, 1, f'Победил {winner}')
             except Exception:
                 print('Вы вышли из игры.')
@@ -118,10 +117,6 @@ class Interface:
                 print('Вы вышли из игры.')
                 sys.exit(0)
 
-    def clear(self):
+    def _clear(self):
         self.window.erase()
-        self.win_player.erase()
-        self.win_bot.erase()
         self.window.refresh()
-        self.win_player.refresh()
-        self.win_bot.refresh()

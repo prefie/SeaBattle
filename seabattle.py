@@ -12,10 +12,10 @@ def main():
     """Точка входа в приложение"""
     if (len(sys.argv) > 1 and
             (sys.argv[1] == '--help' or sys.argv[1] == '-h')):
-        print('''Используйте: seabattle.py [height] [width] [max_size_ship]''')
+        print('''Используйте: seabattle.py [height] [width] [max_size_ship] [level]''')
         sys.exit(0)
 
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 5:
         print('Некорректный запуск приложения. Введите seabattle.py --help')
         sys.exit(ERROR_EXCEPTION)
 
@@ -23,11 +23,12 @@ def main():
         height = int(sys.argv[1])
         width = int(sys.argv[2])
         max_size_ship = int(sys.argv[3])
+        level = int(sys.argv[4])
     except Exception:
         print('Некорректный запуск приложения. Введите seabattle.py --help')
         sys.exit(ERROR_EXCEPTION)
 
-    game = Game(width, height, max_size_ship, 1)
+    game = Game(width, height, max_size_ship, level)
     interface = Interface(game)
     game.start()
 
@@ -42,7 +43,7 @@ def main():
         else:
             game.shot()
 
-    print('Вин игрок' if game.player_is_win() else 'Вин тачка')
+    interface.the_end(game.player_is_win())
 
 
 if __name__ == '__main__':

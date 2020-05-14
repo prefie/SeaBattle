@@ -30,6 +30,10 @@ class Interface:
         self.win_bot.keypad(True)
         self.win_player.box()
         self.win_bot.box()
+
+        self._start()
+
+    def _start(self):
         for i in range(1, self.dx - 1):
             for j in range(1, self.dy - 1):
                 if i % 2 == 0:
@@ -84,7 +88,7 @@ class Interface:
             print('Вы вышли из игры.')
             sys.exit(0)
         if key == ord('r'):
-            """restart"""
+            return None
             pass
         if key == curses.KEY_MOUSE:
             _, mx, my, _, _ = curses.getmouse()

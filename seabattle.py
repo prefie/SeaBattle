@@ -1,34 +1,27 @@
 #!/usr/bin/env python3
 """Консольная версия игры «Морской бой»"""
 
-import sys
+import argparse
 from battle.game import Game
 from battle.interface import Interface
 
-ERROR_EXCEPTION = 1
+
+def parse_args():
+    """Разбор аргументов запуска"""
+    parser = argparse.ArgumentParser(description='Seabattle game')
+    parser.add_argument('height', type=int, help='Height')
+    parser.add_argument('width', type=int, help='Width')
+    parser.add_argument('max_size_ship', type=int, help='Max_size_ship')
+    parser.add_argument('level', type=int, help='Level')
+
+    return parser.parse_args()
 
 
 def main():
     """Точка входа в приложение"""
-    if (len(sys.argv) > 1 and
-            (sys.argv[1] == '--help' or sys.argv[1] == '-h')):
-        print('''Используйте: seabattle.py [height] [width] [max_size_ship] [level]''')
-        sys.exit(0)
+    args = parse_args()
 
-    if len(sys.argv) < 5:
-        print('Некорректный запуск приложения. Введите seabattle.py --help')
-        sys.exit(ERROR_EXCEPTION)
-
-    try:
-        height = int(sys.argv[1])
-        width = int(sys.argv[2])
-        max_size_ship = int(sys.argv[3])
-        level = int(sys.argv[4])
-    except Exception:
-        print('Некорректный запуск приложения. Введите seabattle.py --help')
-        sys.exit(ERROR_EXCEPTION)
-
-    game = Game(width, height, max_size_ship, level)
+    game = Game(args.width, args.height, args.max_size_ship, args.level)
     interface = Interface(game)
     game.start()
 
@@ -39,7 +32,13 @@ def main():
             break
 
         if game.first_player_current:
-            game.shot(interface.click_user())
+            click = interface.click_user()
+            if click is None:
+                game = Game(args.width, args.height, args.max_size_ship, args.level)
+                interface = Interface(game)
+                game.start()
+                continue
+            game.shot(click)
         else:
             game.shot()
 

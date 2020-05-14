@@ -196,8 +196,8 @@ class Game:
     """Игра"""
     def __init__(self, size_x, size_y, max_size_ship, level):
         """Создание игры с ботом"""
-        self.player = Player('Nikolai', Field(size_x, size_y, max_size_ship))
         self.bot = Player('Bot', Field(size_x, size_y, max_size_ship))
+        self.player = Player('Nikolai', Field(size_x, size_y, max_size_ship))
         self.first_player_current = True
         if level == 1:
             self.shot_botAI = BotAI.shot_level_1

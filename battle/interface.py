@@ -48,7 +48,7 @@ class Interface:
                 elif j != self.dy - 1 - 1:  # У посл. строчки нет подчёркиваний
                     self.win_player.addstr(j, i, '_')
                     self.win_bot.addstr(j, i, '_')
-        self.window.addstr(self.dy + 1, (1 + self.dx) // 2 - 5, "Ваше поле")
+        self.window.addstr(self.dy + 1, (1 + self.dx) // 2 - 4, "Ваше поле")
         self.window.addstr(self.dy + 1, 5 + self.dx + (1 + self.dx) // 2 - 7, "Поле противника")
         self.window.refresh()
         self.win_player.refresh()
@@ -90,7 +90,10 @@ class Interface:
         """Обработка клика пользователя.
         Возвращает координаты относительно игрового поля"""
         self.update()
-        key = self.win_bot.getch()
+        try:
+            key = self.win_bot.getch()
+        except KeyboardInterrupt:
+            return self.click_user()
         if key == ord('q'):
             curses.endwin()
             print('Вы вышли из игры.')

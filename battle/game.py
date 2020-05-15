@@ -196,6 +196,9 @@ class Game:
     """Игра"""
     def __init__(self, size_x, size_y, max_size_ship, level):
         """Создание игры с ботом"""
+        self.size_x = size_x
+        self.size_y = size_y
+        self.max_size_ship = max_size_ship
         self.bot = Player('Bot', Field(size_x, size_y, max_size_ship))
         self.player = Player('Nikolai', Field(size_x, size_y, max_size_ship))
         self.first_player_current = True
@@ -208,6 +211,12 @@ class Game:
         """Начало игры со случайной расстановкой кораблей"""
         self.player.field.random_placement_ships()
         self.bot.field.random_placement_ships()
+
+    def restart(self):
+        self.bot = Player('Bot', Field(self.size_x, self.size_y, self.max_size_ship))
+        self.player = Player('Nikolai', Field(self.size_x, self.size_y, self.max_size_ship))
+        self.first_player_current = True
+        self.start()
 
     def shot(self, point=None):
         """Выстрел того, чья сейчас очередь"""

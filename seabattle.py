@@ -29,20 +29,12 @@ def main():
         interface.update()
 
         if game.player_is_win() is not None:
-            break
+            interface.the_end(game.player_is_win)
 
         if game.first_player_current:
-            click = interface.click_user()
-            if click is None:
-                game = Game(args.width, args.height, args.max_size_ship, args.level)
-                interface = Interface(game)
-                game.start()
-                continue
-            game.shot(click)
+            game.shot(interface.click_user())
         else:
             game.shot()
-
-    interface.the_end(game.player_is_win())
 
 
 if __name__ == '__main__':

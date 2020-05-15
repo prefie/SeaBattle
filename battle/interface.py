@@ -6,6 +6,7 @@ import sys
 
 class Interface:
     def __init__(self, game):
+        """Создание интерфейса пользователя"""
         self.game = game
         self.dx = game.player.field.size_x * 2 + 1
         self.dy = game.player.field.size_y + 2
@@ -34,6 +35,8 @@ class Interface:
         self._start()
 
     def _start(self):
+        self.win_bot.clear()
+        self.win_player.clear()
         for i in range(1, self.dx - 1):
             for j in range(1, self.dy - 1):
                 if i % 2 == 0:
@@ -81,6 +84,8 @@ class Interface:
         win.refresh()
 
     def click_user(self):
+        """Обработка клика пользователя.
+        Возвращает координаты относительно игрового поля"""
         self.update()
         key = self.win_bot.getch()
         if key == ord('q'):
@@ -88,8 +93,8 @@ class Interface:
             print('Вы вышли из игры.')
             sys.exit(0)
         if key == ord('r'):
-            return None
-            pass
+            self.game.restart()
+            self._start()
         if key == curses.KEY_MOUSE:
             _, mx, my, _, _ = curses.getmouse()
             if my - 1 > 0 and self.dx + 5 < mx < 2 * self.dx + 5 \
@@ -101,6 +106,7 @@ class Interface:
         return self.click_user()
 
     def the_end(self, player_win):
+        """Окно конца игры"""
         self._clear()
         winner = 'Игрок' if player_win else 'Искусственный интеллект'
         while True:
@@ -120,6 +126,11 @@ class Interface:
                 curses.endwin()
                 print('Вы вышли из игры.')
                 sys.exit(0)
+            if key == ord('r'):
+                self._clear()
+                self.game.restart()
+                self._start()
+                break
 
     def _clear(self):
         self.window.erase()

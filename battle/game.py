@@ -65,6 +65,8 @@ class Field:
         self.size_x = size_x
         self.size_y = size_y
         self.max_size_ship = max_size_ship
+        if not self._checking_placement():
+            raise ValueError
         self.cells = []  # список живых клеток
         self.shots = {}  # список выстрелов
         self.ships = []  # список кораблей
@@ -191,6 +193,18 @@ class Field:
             return True
         return False
 
+    def _checking_placement(self):
+        """Возвращает True, если расстановка
+        с таким количеством кораблей возможна"""
+        count = 0
+        c = 1  # Кораблей столькоклеточных
+        for size_ship in range(self.max_size_ship, 0, -1):
+            for _ in range(c):
+                count = count + 2 * c + 3
+            c += 1
+        count = count - (self.size_x + self.size_y)
+        return count <= self.size_y * self.size_x
+
 
 class Game:
     """Игра"""
@@ -223,8 +237,10 @@ class Game:
         if self.first_player_current and point is not None:
             cell = Cell(point[0], point[1])
             result_shot = self.bot.field.shot(cell)
-        else:
+        elif not self.first_player_current:
             result_shot = self.shot_botAI(self.player.field)
+        else:
+            result_shot = None
 
         if result_shot is not None and not result_shot:
             self.first_player_current = not self.first_player_current

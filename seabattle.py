@@ -21,7 +21,12 @@ def main():
     """Точка входа в приложение"""
     args = parse_args()
 
-    game = Game(args.width, args.height, args.max_size_ship, args.level)
+    try:
+        game = Game(args.width, args.height, args.max_size_ship, args.level)
+    except ValueError:
+        print('Невозможная расстановка с таким значением максимальной длины корабля.')
+        return
+
     interface = Interface(game)
     game.start()
 
@@ -29,7 +34,7 @@ def main():
         interface.update()
 
         if game.player_is_win() is not None:
-            interface.the_end(game.player_is_win)
+            interface.the_end(game.player_is_win())
 
         if game.first_player_current:
             game.shot(interface.click_user())

@@ -102,6 +102,7 @@ class Field:
                         continue
                     break
             c += 1
+        self._completion_dict_ships()
 
     def generation_ship(self, size_ship, cell, direction):
         """Создание корабля с проверкой, что рядом нет соседей.
@@ -123,7 +124,6 @@ class Field:
         """Добавление корабля на поле"""
         self.cells.extend(ship)
         self.ships.append(ship)
-        self._completion_dict_ships(ship)
 
     def check_shot(self, x, y):
         """По координатам проверяет, содержится ли точка в
@@ -140,10 +140,11 @@ class Field:
                     return True
         return False
 
-    def _completion_dict_ships(self, ship):
+    def _completion_dict_ships(self):
         """Заполняет словарь принадлежности клетки к кораблю"""
-        for cell in ship:
-            self.dict_ships[cell] = ship
+        for ship in self.ships:
+            for cell in ship:
+                self.dict_ships[cell] = ship
 
     def shot(self, *point):
         """Выстрел по клетке

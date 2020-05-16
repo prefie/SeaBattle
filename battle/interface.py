@@ -101,6 +101,8 @@ class Interface:
         if key == ord('r'):
             self.game.restart()
             self._start()
+        if key == ord('s'):
+            self.game.save_game()
         if key == curses.KEY_MOUSE:
             _, mx, my, _, _ = curses.getmouse()
             if my - 1 > 0 and self.dx + 5 < mx < 2 * self.dx + 5 \

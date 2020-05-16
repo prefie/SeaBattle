@@ -1,6 +1,9 @@
 """Модуль реализует логику игры «Морской бой»"""
 
 import random
+import re
+import json
+import zlib
 from battle.botAI import BotAI
 from enum import Enum
 
@@ -13,10 +16,16 @@ class Direction(Enum):
 
 class Cell:
     """Клетка игрового поля"""
+
     def __init__(self, x, y):
         """Инициализация клетки"""
         self.x = x
         self.y = y
+
+    @staticmethod
+    def fromstr(string):
+        string_split = list(map(int, re.findall(r'\d+', string)))
+        return Cell(string_split[0], string_split[1])
 
     def __eq__(self, other):
         """Проверка равенства клеток"""
@@ -24,7 +33,7 @@ class Cell:
 
     def __str__(self):
         """Строковое представление клетки (x, y)"""
-        return f'({self.x}, {self.y})'
+        return f'{self.x},{self.y}'
 
     def __hash__(self):
         """Хеш объекта Клетки"""
@@ -33,6 +42,7 @@ class Cell:
 
 class Ship:
     """Корабль игрового поля"""
+
     def __init__(self, cells):
         """Создание корабля из списка клеток"""
         self.cells = cells
@@ -45,9 +55,13 @@ class Ship:
         """Проверка равенства кораблей"""
         return self.cells == other.cells
 
+    def __str__(self):
+        return '.'.join(map(str, self.cells))
+
 
 class Player:
     """Игрок"""
+
     def __init__(self, name, field):
         """Создание игрока со своим полем"""
         self.name = name
@@ -56,6 +70,7 @@ class Player:
 
 class Field:
     """Игровое поле"""
+
     def __init__(self, size_x, size_y, max_size_ship):
         """Создание поля (размер, макс. длина корабля,
         список живых клеток,
@@ -194,6 +209,18 @@ class Field:
             return True
         return False
 
+    @staticmethod
+    def fromstr(string):
+        size_x, size_y, max_size_ship, cells, ships, shots = string.split(';')
+        size_x, size_y, max_size_ship =\
+            list(map(int, (size_x, size_y, max_size_ship)))
+        field = Field(size_x, size_y, max_size_ship)
+        field._cells_fromstr(cells)
+        field._ships_fromstr(ships)
+        field._shots_fromstr(shots)
+        field._completion_dict_ships()
+        return field
+
     def _checking_placement(self):
         """Возвращает True, если расстановка
         с таким количеством кораблей возможна"""
@@ -206,14 +233,56 @@ class Field:
         count = count - (self.size_x + self.size_y)
         return count <= self.size_y * self.size_x
 
+    def _cells_instr(self):
+        return ':'.join(map(str, self.cells))
+
+    def _cells_fromstr(self, string):
+        list_cells = []
+        string_split = string.split(':')
+        for cell in string_split:
+            list_cells.append(Cell.fromstr(cell))
+        self.cells = list_cells
+
+    def _ships_instr(self):
+        return ':'.join(map(str, self.ships))
+
+    def _ships_fromstr(self, string):
+        list_ships = []
+        string_split = string.split(':')
+        for ship in string_split:
+            strings_cells = ship.split('.')
+            list_cells = [Cell.fromstr(cell) for cell in strings_cells]
+            list_ships.append(Ship(list_cells))
+        self.ships = list_ships
+
+    def _shots_instr(self):
+        return ':'.join(map(lambda shot: '.'.join(map(str, shot)),
+                            self.shots.items()))
+
+    def _shots_fromstr(self, string):
+        dict_shots = {}
+        string_split = string.split(':')
+        for shot in string_split:
+            shot_split = shot.split('.')
+            dict_shots[Cell.fromstr(shot_split[0])] = shot_split[1] == 'True'
+        self.shots = dict_shots
+
+    def __str__(self):
+        string = ";".join(map(str, (self.size_x, self.size_y, self.max_size_ship))) + ";"
+        return string + ";".join((self._cells_instr(),
+                                  self._ships_instr(),
+                                  self._shots_instr()))
+
 
 class Game:
     """Игра"""
+
     def __init__(self, size_x, size_y, max_size_ship, level):
         """Создание игры с ботом"""
         self.size_x = size_x
         self.size_y = size_y
         self.max_size_ship = max_size_ship
+        self.level = level
         self.bot = Player('Bot', Field(size_x, size_y, max_size_ship))
         self.player = Player('Nikolai', Field(size_x, size_y, max_size_ship))
         self.first_player_current = True
@@ -245,6 +314,35 @@ class Game:
 
         if result_shot is not None and not result_shot:
             self.first_player_current = not self.first_player_current
+
+    @staticmethod
+    def load_game():
+        with open('save', 'rb') as f:
+            data = json.loads(zlib.decompress(f.read()).decode('utf-8'))
+            player_field = Field.fromstr(data['player_field'])
+            bot_filed = Field.fromstr(data['bot_field'])
+            size_x = int(data['size_x'])
+            size_y = int(data['size_y'])
+            max_size_ship = int(data['max_size_ship'])
+            level = int(data['max_size_ship'])
+            game = Game(size_x, size_y, max_size_ship, level)
+            game.player.field = player_field
+            game.bot.field = bot_filed
+            return game
+        pass
+
+    def save_game(self):
+        with open('save', 'wb') as f:
+            data = {
+                'size_x': str(self.size_x),
+                'size_y': str(self.size_y),
+                'max_size_ship': str(self.max_size_ship),
+                'level': str(self.level),
+                'player_field': str(self.player.field),
+                'bot_field': str(self.bot.field)
+            }
+            f.write(zlib.compress(json.dumps(data).encode('utf-8')))
+        pass
 
     def player_is_win(self):
         """Возвращает True, если выиграл Игрок,

@@ -9,11 +9,12 @@ from battle.interface import Interface
 def parse_args():
     """Разбор аргументов запуска"""
     parser = argparse.ArgumentParser(description='Seabattle game')
-    parser.add_argument('height', type=int, help='Height')
-    parser.add_argument('width', type=int, help='Width')
-    parser.add_argument('max_size_ship', type=int, help='Max_size_ship')
-    parser.add_argument('level', type=int, help='Level')
 
+    parser.add_argument('-l', '--load', action='store_true')
+    parser.add_argument('-g', '--game', nargs=4, type=int, metavar=('SIZE_Y', 'SIZE_X', 'MAX_SIZE_SHIP', 'LEVEL'))
+    args = parser.parse_args()
+    if args.game is None and not args.load:
+        return parser.parse_args(['-h'])
     return parser.parse_args()
 
 
@@ -22,13 +23,21 @@ def main():
     args = parse_args()
 
     try:
-        game = Game(args.width, args.height, args.max_size_ship, args.level)
+        if args.load:
+            game = Game.load_game()
+        else:
+            height, width, max_size_ship, level = args.game
+            game = Game(height, width, max_size_ship, level)
     except ValueError:
         print('Невозможная расстановка с таким значением максимальной длины корабля.')
         return
+    except Exception:
+        print('Файла сохранения нет или он некорректен.')
+        return
 
     interface = Interface(game)
-    game.start()
+    if not args.load:
+        game.start()
 
     while True:
         interface.update()

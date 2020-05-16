@@ -372,7 +372,6 @@ class Game:
             game.player.field = player_field
             game.bot.field = bot_filed
             return game
-        pass
 
     def save_game(self):
         with open('save', 'wb') as f:
@@ -385,7 +384,6 @@ class Game:
                 'bot_field': str(self.bot.field)
             }
             f.write(zlib.compress(json.dumps(data).encode('utf-8')))
-        pass
 
     def player_is_win(self):
         """Возвращает True, если выиграл Игрок,

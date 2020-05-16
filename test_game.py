@@ -46,7 +46,6 @@ class Tests(unittest.TestCase):
 
     def test_empty_game(self):
         game = Game(10, 10, 4, 1)
-        print(game.player_is_win())
         self.assertTrue(game.player_is_win())
 
     def test_generation_ship_horizontal(self):

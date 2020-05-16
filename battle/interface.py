@@ -49,6 +49,19 @@ class Interface:
         curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
         self.update()
 
+    def run(self):
+        """Запуск логики Морского боя"""
+        while True:
+            self.update()
+
+            if self.game.player_is_win() is not None:
+                self.the_end(self.game.player_is_win())
+
+            if self.game.first_player_current:
+                self.game.shot(self.click_user())
+            else:
+                self.game.shot()
+
     def update(self):
         """Обновление картинки (окон с полями)"""
         for i in self.game.player.field.cells:

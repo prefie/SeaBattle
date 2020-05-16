@@ -46,16 +46,7 @@ def main():
     if not args.load:
         game.start()
 
-    while True:
-        interface.update()
-
-        if game.player_is_win() is not None:
-            interface.the_end(game.player_is_win())
-
-        if game.first_player_current:
-            game.shot(interface.click_user())
-        else:
-            game.shot()
+    interface.run()
 
 
 if __name__ == '__main__':

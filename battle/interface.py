@@ -1,6 +1,7 @@
 """Модуль реализует интерфейс игры «Морской бой»"""
 
 import curses
+import _curses
 import sys
 
 
@@ -11,25 +12,14 @@ class Interface:
         self.dx = game.player.field.size_x * 2 + 1
         self.dy = game.player.field.size_y + 2
         self.window = curses.initscr()
-        height, width = self.window.getmaxyx()
-        if height < self.dy + 2 or width < 1 + 2 * self.dx + 5:
-            print('Расширьте окно консоли и запустите приложение заново.')
-            sys.exit(1)
-        if self.game.size_y < 2 or self.game.size_x < 4:
-            print('Минимальная высота - 2, ширина - 4.')
-            sys.exit(1)
         curses.noecho()  # Нельзя писать
         curses.curs_set(0)  # Не видно курсор
         curses.mousemask(1)
         curses.start_color()
-        try:
-            self.win_player = curses.newwin(self.dy, self.dx, 1, 1)
-            self.win_bot = curses.newwin(
-                self.dy, self.dx, 1, 1 + self.dx + 5)
-            self.win_end = None
-        except Exception:
-            print('Расширьте окно консоли и запустите приложение заново')
-            sys.exit(1)
+        self.win_player = curses.newwin(self.dy, self.dx, 1, 1)
+        self.win_bot = curses.newwin(
+            self.dy, self.dx, 1, 1 + self.dx + 5)
+        self.win_end = None
         self.win_player.keypad(True)
         self.win_bot.keypad(True)
         self.win_player.box()
@@ -134,7 +124,7 @@ class Interface:
                 self.win_end = curses.newwin(
                     3, (10+len(winner)), y//2 - 1, x//2 - (10+len(winner))//2)
                 self.win_end.addstr(1, 1, f'Победил {winner}')
-            except Exception:
+            except _curses.error:
                 print('Вы вышли из игры.')
                 sys.exit(1)
             self.win_end.box()

@@ -81,7 +81,7 @@ class Field:
         self.size_x = size_x
         self.size_y = size_y
         self.max_size_ship = max_size_ship
-        if not self._checking_placement():
+        if not self._checking_placement() or size_x < 4 or size_y < 2:
             raise ValueError
         self.cells = []  # список живых клеток
         self.shots = {}  # список выстрелов

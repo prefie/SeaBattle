@@ -3,6 +3,7 @@
 
 import argparse
 import sys
+import _curses
 from battle.game import Game
 from battle.interface import Interface
 
@@ -30,14 +31,18 @@ def main():
         else:
             height, width, max_size_ship, level = args.game
             game = Game(width, height, max_size_ship, level)
+
+        interface = Interface(game)
     except ValueError:
-        print('С такой максимальной длиной корабля расстановка невозможна.')
+        print('Такая конфигурация поля игры невозможна.')
         sys.exit(1)
-    except Exception:
+    except FileNotFoundError:
         print('Файла сохранения нет или он некорректен.')
         sys.exit(1)
+    except _curses.error:
+        print('Расширьте окно консоли и запустите приложение заново.')
+        sys.exit(1)
 
-    interface = Interface(game)
     if not args.load:
         game.start()
 

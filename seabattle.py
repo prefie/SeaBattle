@@ -2,6 +2,7 @@
 """Консольная версия игры «Морской бой»"""
 
 import argparse
+import sys
 from battle.game import Game
 from battle.interface import Interface
 
@@ -30,10 +31,10 @@ def main():
             game = Game(width, height, max_size_ship, level)
     except ValueError:
         print('Невозможная расстановка с таким значением максимальной длины корабля.')
-        return
+        sys.exit(1)
     except Exception:
         print('Файла сохранения нет или он некорректен.')
-        return
+        sys.exit(1)
 
     interface = Interface(game)
     if not args.load:

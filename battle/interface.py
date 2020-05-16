@@ -13,10 +13,10 @@ class Interface:
         self.window = curses.initscr()
         height, width = self.window.getmaxyx()
         if height < self.dy + 2 or width < 1 + 2 * self.dx + 5:
-            print('Расширьте окно консоли и запустите приложение заново')
+            print('Расширьте окно консоли и запустите приложение заново.')
             sys.exit(1)
         if self.game.size_y < 2 or self.game.size_x < 4:
-            print('Минимальная высота - 2, ширина - 4 ')
+            print('Минимальная высота - 2, ширина - 4.')
             sys.exit(1)
         curses.noecho()  # Нельзя писать
         curses.curs_set(0)  # Не видно курсор

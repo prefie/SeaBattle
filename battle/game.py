@@ -330,7 +330,6 @@ class Game:
             result_shot = self.bot.field.shot(cell)
         elif not self.first_player_current:
             result_shot = self.shot_botAI(self.player.field)
-            """Заполнение списка состояний"""
         else:
             result_shot = None
 

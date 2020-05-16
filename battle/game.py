@@ -25,6 +25,7 @@ class Cell:
 
     @staticmethod
     def fromstr(string):
+        """Создание клетки из её текстового представления"""
         string_split = list(map(int, re.findall(r'\d+', string)))
         return Cell(string_split[0], string_split[1])
 
@@ -213,6 +214,7 @@ class Field:
 
     @staticmethod
     def fromstr(string):
+        """Создание поля из его текстового представления"""
         size_x, size_y, max_size_ship, cells, ships, shots = string.split(';')
         size_x, size_y, max_size_ship =\
             list(map(int, (size_x, size_y, max_size_ship)))
@@ -274,20 +276,12 @@ class Field:
         self.shots = dict_shots
 
     def __str__(self):
+        """Текстовое представление игрового поля"""
         string = ";".join(
             map(str, (self.size_x, self.size_y, self.max_size_ship))) + ";"
         return string + ";".join((self._cells_instr(),
                                   self._ships_instr(),
                                   self._shots_instr()))
-
-    def __eq__(self, other):
-        return (other.size_x == self.size_x and
-                other.size_y == self.size_y and
-                other.max_size_ship == self.max_size_ship and
-                other.cells == self.cells and
-                other.ships == self.ships and
-                other.dict_ships == self.dict_ships and
-                other.shots == self.shots)
 
 
 class Game:
@@ -316,6 +310,7 @@ class Game:
         self.bot.field.random_placement_ships()
 
     def restart(self):
+        """Рестарт игры"""
         self.bot = Player(
             'Bot', Field(self.size_x, self.size_y, self.max_size_ship))
         self.player = Player(
@@ -349,9 +344,11 @@ class Game:
             (player_field, bot_field, self.first_player_current))
 
     def can_undo(self):
+        """Возвращает True, если есть ходы для отмены"""
         return len(self._states_fields_log) > 0 and self._count_undo > 0
 
     def undo(self):
+        """Отмена хода"""
         if not self.can_undo():
             return
         self.player.field, self.bot.field, self.first_player_current =\
@@ -360,6 +357,7 @@ class Game:
 
     @staticmethod
     def load_game():
+        """Возвращает игру, загруженную из файла"""
         with open('save', 'rb') as f:
             data = json.loads(zlib.decompress(f.read()).decode('utf-8'))
             player_field = Field.fromstr(data['player_field'])
@@ -374,6 +372,7 @@ class Game:
             return game
 
     def save_game(self):
+        """Сохранение игры в файл"""
         with open('save', 'wb') as f:
             data = {
                 'size_x': str(self.size_x),

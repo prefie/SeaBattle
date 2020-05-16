@@ -27,7 +27,7 @@ def main():
             game = Game.load_game()
         else:
             height, width, max_size_ship, level = args.game
-            game = Game(height, width, max_size_ship, level)
+            game = Game(width, height, max_size_ship, level)
     except ValueError:
         print('Невозможная расстановка с таким значением максимальной длины корабля.')
         return

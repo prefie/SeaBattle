@@ -6,6 +6,7 @@ import json
 import zlib
 from battle.botAI import BotAI
 from enum import Enum
+from math import sqrt
 
 
 class Direction(Enum):
@@ -232,7 +233,9 @@ class Field:
                 count = count + 2 * c + 3
             c += 1
         count = count - (self.size_x + self.size_y)
-        return count <= self.size_y * self.size_x
+        return (count <= self.size_y * self.size_x and
+                self.size_x > self.max_size_ship and
+                self.size_y > self.max_size_ship)
 
     def _cells_instr(self):
         return ':'.join(map(str, self.cells))
@@ -261,6 +264,8 @@ class Field:
                             self.shots.items()))
 
     def _shots_fromstr(self, string):
+        if len(string) < 1:
+            return
         dict_shots = {}
         string_split = string.split(':')
         for shot in string_split:
@@ -269,10 +274,20 @@ class Field:
         self.shots = dict_shots
 
     def __str__(self):
-        string = ";".join(map(str, (self.size_x, self.size_y, self.max_size_ship))) + ";"
+        string = ";".join(
+            map(str, (self.size_x, self.size_y, self.max_size_ship))) + ";"
         return string + ";".join((self._cells_instr(),
                                   self._ships_instr(),
                                   self._shots_instr()))
+
+    def __eq__(self, other):
+        return (other.size_x == self.size_x and
+                other.size_y == self.size_y and
+                other.max_size_ship == self.max_size_ship and
+                other.cells == self.cells and
+                other.ships == self.ships and
+                other.dict_ships == self.dict_ships and
+                other.shots == self.shots)
 
 
 class Game:
@@ -292,29 +307,56 @@ class Game:
         else:
             self.shot_botAI = BotAI.shot_level_2
 
+        self._count_undo = int(sqrt(max(self.size_x, self. size_y)))
+        self._states_fields_log = []
+
     def start(self):
         """Начало игры со случайной расстановкой кораблей"""
         self.player.field.random_placement_ships()
         self.bot.field.random_placement_ships()
 
     def restart(self):
-        self.bot = Player('Bot', Field(self.size_x, self.size_y, self.max_size_ship))
-        self.player = Player('Nikolai', Field(self.size_x, self.size_y, self.max_size_ship))
+        self.bot = Player(
+            'Bot', Field(self.size_x, self.size_y, self.max_size_ship))
+        self.player = Player(
+            'Nikolai', Field(self.size_x, self.size_y, self.max_size_ship))
         self.first_player_current = True
+        self._count_undo = int(sqrt(max(self.size_x, self.size_y)))
         self.start()
 
     def shot(self, point=None):
         """Выстрел того, чья сейчас очередь"""
+        if (self.first_player_current and
+                not self.bot.field.check_shot(point[0], point[1])):
+            self._remember_states_fields()
+
         if self.first_player_current and point is not None:
             cell = Cell(point[0], point[1])
             result_shot = self.bot.field.shot(cell)
         elif not self.first_player_current:
             result_shot = self.shot_botAI(self.player.field)
+            """Заполнение списка состояний"""
         else:
             result_shot = None
 
         if result_shot is not None and not result_shot:
             self.first_player_current = not self.first_player_current
+
+    def _remember_states_fields(self):
+        player_field = Field.fromstr(str(self.player.field))
+        bot_field = Field.fromstr(str(self.bot.field))
+        self._states_fields_log.append(
+            (player_field, bot_field, self.first_player_current))
+
+    def can_undo(self):
+        return len(self._states_fields_log) > 0 and self._count_undo > 0
+
+    def undo(self):
+        if not self.can_undo():
+            return
+        self.player.field, self.bot.field, self.first_player_current =\
+            self._states_fields_log.pop()
+        self._count_undo -= 1
 
     @staticmethod
     def load_game():

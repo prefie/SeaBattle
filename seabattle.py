@@ -12,7 +12,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Seabattle game')
 
     parser.add_argument('-l', '--load', action='store_true')
-    parser.add_argument('-g', '--game', nargs=4, type=int, metavar=('SIZE_Y', 'SIZE_X', 'MAX_SIZE_SHIP', 'LEVEL'))
+    parser.add_argument('-g', '--game', nargs=4, type=int,
+                        metavar=('SIZE_Y', 'SIZE_X', 'MAX_SIZE_SHIP', 'LEVEL'))
     args = parser.parse_args()
     if args.game is None and not args.load:
         return parser.parse_args(['-h'])
@@ -30,7 +31,7 @@ def main():
             height, width, max_size_ship, level = args.game
             game = Game(width, height, max_size_ship, level)
     except ValueError:
-        print('Невозможная расстановка с таким значением максимальной длины корабля.')
+        print('С такой максимальной длиной корабля расстановка невозможна.')
         sys.exit(1)
     except Exception:
         print('Файла сохранения нет или он некорректен.')

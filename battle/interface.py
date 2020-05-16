@@ -48,8 +48,10 @@ class Interface:
                 elif j != self.dy - 1 - 1:  # У посл. строчки нет подчёркиваний
                     self.win_player.addstr(j, i, '_')
                     self.win_bot.addstr(j, i, '_')
-        self.window.addstr(self.dy + 1, (1 + self.dx) // 2 - 4, "Ваше поле")
-        self.window.addstr(self.dy + 1, 5 + self.dx + (1 + self.dx) // 2 - 7, "Поле противника")
+        self.window.addstr(
+            self.dy + 1, (1 + self.dx)//2 - 4, "Ваше поле")
+        self.window.addstr(
+            self.dy + 1, 5 + self.dx + (1 + self.dx)//2 - 7, "Поле противника")
         self.window.refresh()
         self.win_player.refresh()
         self.win_bot.refresh()
@@ -59,7 +61,6 @@ class Interface:
 
     def update(self):
         """Обновление картинки (окон с полями)"""
-
         for i in self.game.player.field.cells:
             self.win_player.addstr(i.y + 1, (i.x + 1) * 2 - 1, '#')
 
@@ -94,15 +95,24 @@ class Interface:
             key = self.win_bot.getch()
         except KeyboardInterrupt:
             return self.click_user()
+
         if key == ord('q'):
             curses.endwin()
             print('Вы вышли из игры.')
             sys.exit(0)
+
         if key == ord('r'):
             self.game.restart()
             self._start()
+
         if key == ord('s'):
             self.game.save_game()
+
+        if key == ord('u') and self.game.can_undo():
+            self.game.undo()
+            self._start()
+            self.update()
+
         if key == curses.KEY_MOUSE:
             _, mx, my, _, _ = curses.getmouse()
             if my - 1 > 0 and self.dx + 5 < mx < 2 * self.dx + 5 \
@@ -121,8 +131,8 @@ class Interface:
             curses.curs_set(0)
             y, x = self.window.getmaxyx()
             try:
-                self.win_end = curses.newwin(3, (10+len(winner)),
-                                             y // 2 - 1, x // 2 - (10+len(winner))//2)
+                self.win_end = curses.newwin(
+                    3, (10+len(winner)), y//2 - 1, x//2 - (10+len(winner))//2)
                 self.win_end.addstr(1, 1, f'Победил {winner}')
             except Exception:
                 print('Вы вышли из игры.')

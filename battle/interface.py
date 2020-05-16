@@ -115,10 +115,10 @@ class Interface:
 
     def the_end(self, player_win):
         """Окно конца игры"""
-        self._clear()
         winner = 'Игрок' if player_win else 'Искусственный интеллект'
         while True:
             curses.curs_set(0)
+            self._clear()
             y, x = self.window.getmaxyx()
             try:
                 self.win_end = curses.newwin(

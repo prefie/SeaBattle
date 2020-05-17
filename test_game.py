@@ -3,6 +3,7 @@
 import unittest
 from battle.game import *
 from battle.botAI import BotAI
+from copy import deepcopy
 
 
 class Tests(unittest.TestCase):
@@ -70,7 +71,7 @@ class Tests(unittest.TestCase):
         self.assertIsNotNone(result_shot)
         self.assertTrue(len(field.shots) > 0)
 
-        for _ in range(10):
+        for _ in range(100):
             result_shot = BotAI.shot_level_1(field)
             self.assertIsNotNone(result_shot)
         self.assertTrue(len(field.shots) > 10)
@@ -81,7 +82,7 @@ class Tests(unittest.TestCase):
         self.assertIsNotNone(result_shot)
         self.assertTrue(len(field.shots) > 0)
 
-        for _ in range(10):
+        for _ in range(100):
             result_shot = BotAI.shot_level_2(field)
             self.assertIsNotNone(result_shot)
         self.assertTrue((len(field.shots) > 10))
@@ -118,11 +119,10 @@ class Tests(unittest.TestCase):
     def test_restart_game(self):
         game = Game(4, 4, 2, 2)
         game.start()
-        player_field = game.player_field
-        bot_field = game.bot_field
+        game.shot((0, 0))
+        prev_game = deepcopy(game)
         game.restart()
-        self.assertNotEqual(player_field, game.player_field)
-        self.assertNotEqual(bot_field, game.bot_field)
+        self.assertNotEqual(game, prev_game)
 
     def test_shot_game(self):
         game = Game(10, 10, 4, 2)

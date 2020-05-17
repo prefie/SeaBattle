@@ -14,7 +14,7 @@ class Tests(unittest.TestCase):
     def test_count_ships_random_placement(self):
         field = Field(20, 20, 5)
         field.random_placement_ships()
-        self.assertEqual(15, len(field.ships))
+        self.assertEqual(15, len(field._ships))
 
     def test_shot(self):
         field = Field(10, 10, 4)
@@ -41,8 +41,8 @@ class Tests(unittest.TestCase):
         game = Game(10, 10, 4, 1)
         game.start()
 
-        self.assertEqual(20, len(game.player.field.cells))
-        self.assertEqual(20, len(game.bot.field.cells))
+        self.assertEqual(20, len(game.player_field.cells))
+        self.assertEqual(20, len(game.bot_field.cells))
 
     def test_empty_game(self):
         game = Game(10, 10, 4, 1)
@@ -61,6 +61,13 @@ class Tests(unittest.TestCase):
         ship = field.generation_ship(3, Cell(0, 9), Direction.VERTICAL)
         ans = Ship([Cell(0, 9), Cell(0, 0), Cell(0, 1)])
         self.assertEqual(ans, ship)
+
+    def test_save_load_game(self):
+        game = Game(10, 10, 4, 2)
+        game.start()
+        game.save_game()
+        save_game = Game.load_game()
+        self.assertEqual(game, save_game)
 
     """def test_player_move(self):
         game = Game(10, 10, 4, 1)

@@ -61,15 +61,6 @@ class Ship:
         return '.'.join(map(str, self.cells))
 
 
-class Player:
-    """Игрок"""
-
-    def __init__(self, name, field):
-        """Создание игрока со своим полем"""
-        self.name = name
-        self.field = field
-
-
 class Field:
     """Игровое поле"""
 
@@ -82,12 +73,14 @@ class Field:
         self.size_x = size_x
         self.size_y = size_y
         self.max_size_ship = max_size_ship
+
         if not self._checking_placement() or size_x < 4 or size_y < 2:
             raise ValueError
+
         self.cells = []  # список живых клеток
         self.shots = {}  # список выстрелов
-        self.ships = []  # список кораблей
-        self.dict_ships = {}  # Какая точка какому кораблю принадлежит
+        self._ships = []  # список кораблей
+        self._dict_ships = {}  # Какая точка какому кораблю принадлежит
 
     def random_placement_ships(self):
         """Случайная расстановка кораблей"""
@@ -139,9 +132,9 @@ class Field:
     def add_ship(self, ship):
         """Добавление корабля на поле"""
         self.cells.extend(ship)
-        self.ships.append(ship)
+        self._ships.append(ship)
         for cell in ship:
-            self.dict_ships[cell] = ship
+            self._dict_ships[cell] = ship
 
     def check_shot(self, x, y):
         """По координатам проверяет, содержится ли точка в
@@ -160,9 +153,9 @@ class Field:
 
     def _completion_dict_ships(self):
         """Заполняет словарь принадлежности клетки к кораблю"""
-        for ship in self.ships:
+        for ship in self._ships:
             for cell in ship:
-                self.dict_ships[cell] = ship
+                self._dict_ships[cell] = ship
 
     def shot(self, *point):
         """Выстрел по клетке
@@ -182,7 +175,7 @@ class Field:
                 self.shots[cell] = True
                 self.cells.remove(cell)
                 if self._check_ship(cell):
-                    self._border_dead_ship(self.dict_ships[cell])
+                    self._border_dead_ship(self._dict_ships[cell])
                 return True
             else:
                 self.shots[cell] = False
@@ -191,7 +184,7 @@ class Field:
 
     def _check_ship(self, cell):
         """Возвращает True, если корабль мёртв"""
-        for point in self.dict_ships[cell]:
+        for point in self._dict_ships[cell]:
             if point not in self.shots:
                 return False
         return True
@@ -208,9 +201,7 @@ class Field:
 
     def is_empty(self):
         """Возвращает True, если живых клеток не осталось"""
-        if len(self.cells) < 1:
-            return True
-        return False
+        return len(self.cells) < 1
 
     @staticmethod
     def fromstr(string):
@@ -250,7 +241,7 @@ class Field:
         self.cells = list_cells
 
     def _ships_instr(self):
-        return ':'.join(map(str, self.ships))
+        return ':'.join(map(str, self._ships))
 
     def _ships_fromstr(self, string):
         list_ships = []
@@ -259,7 +250,7 @@ class Field:
             strings_cells = ship.split('.')
             list_cells = [Cell.fromstr(cell) for cell in strings_cells]
             list_ships.append(Ship(list_cells))
-        self.ships = list_ships
+        self._ships = list_ships
 
     def _shots_instr(self):
         return ':'.join(map(lambda shot: '.'.join(map(str, shot)),
@@ -283,64 +274,82 @@ class Field:
                                   self._ships_instr(),
                                   self._shots_instr()))
 
+    def __eq__(self, other):
+        if not isinstance(other, Field):
+            return False
+
+        return (self.size_x == other.size_x and
+                self.size_y == other.size_y and
+                self.max_size_ship == other.max_size_ship and
+                self.cells == other.cells and
+                self.shots == other.shots and
+                self._ships == self._ships)
+
 
 class Game:
     """Игра"""
 
     def __init__(self, size_x, size_y, max_size_ship, level):
         """Создание игры с ботом"""
-        self.size_x = size_x
-        self.size_y = size_y
-        self.max_size_ship = max_size_ship
         self.level = level
-        self.bot = Player('Bot', Field(size_x, size_y, max_size_ship))
-        self.player = Player('Nikolai', Field(size_x, size_y, max_size_ship))
-        self.first_player_current = True
-        if level == 1:
-            self.shot_botAI = BotAI.shot_level_1
-        else:
-            self.shot_botAI = BotAI.shot_level_2
+        self.player_field = Field(size_x, size_y, max_size_ship)
+        self.bot_field = Field(size_x, size_y, max_size_ship)
+        self.player_current = True
 
-        self._count_undo = int(sqrt(max(self.size_x, self. size_y)))
+        if level == 1:
+            self._shot_botAI = BotAI.shot_level_1
+        else:
+            self._shot_botAI = BotAI.shot_level_2
+
+        self._count_undo = int(sqrt(max(size_x, size_y)))
         self._states_fields_log = []
 
     def start(self):
         """Начало игры со случайной расстановкой кораблей"""
-        self.player.field.random_placement_ships()
-        self.bot.field.random_placement_ships()
+        self.player_field.random_placement_ships()
+        self.bot_field.random_placement_ships()
 
     def restart(self):
         """Рестарт игры"""
-        self.bot = Player(
-            'Bot', Field(self.size_x, self.size_y, self.max_size_ship))
-        self.player = Player(
-            'Nikolai', Field(self.size_x, self.size_y, self.max_size_ship))
-        self.first_player_current = True
-        self._count_undo = int(sqrt(max(self.size_x, self.size_y)))
+        self.bot_field = Field(
+            self.bot_field.size_x,
+            self.bot_field.size_y,
+            self.bot_field.max_size_ship)
+
+        self.player_field = Field(
+            self.player_field.size_x,
+            self.player_field.size_y,
+            self.player_field.max_size_ship)
+
+        self.player_current = True
+        self._count_undo = int(sqrt(max(self.bot_field.size_x,
+                                        self.bot_field.size_y)))
+
+        self._states_fields_log.clear()
         self.start()
 
     def shot(self, point=None):
         """Выстрел того, чья сейчас очередь"""
-        if (self.first_player_current and
-                not self.bot.field.check_shot(point[0], point[1])):
+        if (self.player_current and
+                not self.bot_field.check_shot(point[0], point[1])):
             self._remember_states_fields()
 
-        if self.first_player_current and point is not None:
+        if self.player_current and point is not None:
             cell = Cell(point[0], point[1])
-            result_shot = self.bot.field.shot(cell)
-        elif not self.first_player_current:
-            result_shot = self.shot_botAI(self.player.field)
+            result_shot = self.bot_field.shot(cell)
+        elif not self.player_current:
+            result_shot = self._shot_botAI(self.player_field)
         else:
             result_shot = None
 
         if result_shot is not None and not result_shot:
-            self.first_player_current = not self.first_player_current
+            self.player_current = not self.player_current
 
     def _remember_states_fields(self):
-        player_field = Field.fromstr(str(self.player.field))
-        bot_field = Field.fromstr(str(self.bot.field))
+        player_field = Field.fromstr(str(self.player_field))
+        bot_field = Field.fromstr(str(self.bot_field))
         self._states_fields_log.append(
-            (player_field, bot_field, self.first_player_current))
+            (player_field, bot_field))
 
     def can_undo(self):
         """Возвращает True, если есть ходы для отмены"""
@@ -350,7 +359,8 @@ class Game:
         """Отмена хода"""
         if not self.can_undo():
             return
-        self.player.field, self.bot.field, self.first_player_current =\
+
+        self.player_field, self.bot_field =\
             self._states_fields_log.pop()
         self._count_undo -= 1
 
@@ -359,27 +369,26 @@ class Game:
         """Возвращает игру, загруженную из файла"""
         with open('save', 'rb') as f:
             data = json.loads(zlib.decompress(f.read()).decode('utf-8'))
+            level = int(data['level'])
             player_field = Field.fromstr(data['player_field'])
             bot_filed = Field.fromstr(data['bot_field'])
-            size_x = int(data['size_x'])
-            size_y = int(data['size_y'])
-            max_size_ship = int(data['max_size_ship'])
-            level = int(data['max_size_ship'])
-            game = Game(size_x, size_y, max_size_ship, level)
-            game.player.field = player_field
-            game.bot.field = bot_filed
+            game = Game(
+                player_field.size_x,
+                player_field.size_y,
+                player_field.max_size_ship,
+                level)
+
+            game.player_field = player_field
+            game.bot_field = bot_filed
             return game
 
     def save_game(self):
         """Сохранение игры в файл"""
         with open('save', 'wb') as f:
             data = {
-                'size_x': str(self.size_x),
-                'size_y': str(self.size_y),
-                'max_size_ship': str(self.max_size_ship),
                 'level': str(self.level),
-                'player_field': str(self.player.field),
-                'bot_field': str(self.bot.field)
+                'player_field': str(self.player_field),
+                'bot_field': str(self.bot_field)
             }
             f.write(zlib.compress(json.dumps(data).encode('utf-8')))
 
@@ -387,8 +396,16 @@ class Game:
         """Возвращает True, если выиграл Игрок,
         Возвращает False, если победил бот
         И None, если игра ещё не закончилась"""
-        if self.bot.field.is_empty():
+        if self.bot_field.is_empty():
             return True
-        if self.player.field.is_empty():
+        if self.player_field.is_empty():
             return False
         return None
+
+    def __eq__(self, other):
+        if not isinstance(other, Game):
+            return False
+
+        return (self.level == other.level and
+                self.player_field == other.player_field and
+                self.bot_field == other.bot_field)

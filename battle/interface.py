@@ -9,8 +9,8 @@ class Interface:
     def __init__(self, game):
         """Создание интерфейса пользователя"""
         self.game = game
-        self.dx = game.player.field.size_x * 2 + 1
-        self.dy = game.player.field.size_y + 2
+        self.dx = game.player_field.size_x * 2 + 1
+        self.dy = game.player_field.size_y + 2
         self.window = curses.initscr()
         curses.noecho()  # Нельзя писать
         curses.curs_set(0)  # Не видно курсор
@@ -57,19 +57,19 @@ class Interface:
             if self.game.player_is_win() is not None:
                 self.the_end(self.game.player_is_win())
 
-            if self.game.first_player_current:
+            if self.game.player_current:
                 self.game.shot(self.click_user())
             else:
                 self.game.shot()
 
     def update(self):
         """Обновление картинки (окон с полями)"""
-        for i in self.game.player.field.cells:
+        for i in self.game.player_field.cells:
             self.win_player.addstr(i.y + 1, (i.x + 1) * 2 - 1, '#')
 
-        self._print_result_shot(self.game.player.field.shots,
+        self._print_result_shot(self.game.player_field.shots,
                                 self.win_player)
-        self._print_result_shot(self.game.bot.field.shots,
+        self._print_result_shot(self.game.bot_field.shots,
                                 self.win_bot)
 
         curses.curs_set(0)

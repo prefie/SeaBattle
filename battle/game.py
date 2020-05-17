@@ -74,7 +74,7 @@ class Field:
         self.size_y = size_y
         self.max_size_ship = max_size_ship
 
-        if not self._checking_placement() or size_x < 4 or size_y < 2:
+        if not self._check_placement() or size_x < 4 or size_y < 2:
             raise ValueError
 
         self.cells = []  # список живых клеток
@@ -222,7 +222,7 @@ class Field:
         field._completion_dict_ships()
         return field
 
-    def _checking_placement(self):
+    def _check_placement(self):
         """Возвращает True, если расстановка
         с таким количеством кораблей возможна"""
         count = 0

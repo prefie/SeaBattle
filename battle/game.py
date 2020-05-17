@@ -27,8 +27,6 @@ class Cell:
     def fromstr(string):
         """Создание клетки из её текстового представления"""
         string_split = list(map(int, re.findall(r'\d+', string)))
-        if len(string_split) != 2:
-            a = 1
         return Cell(string_split[0], string_split[1])
 
     def __eq__(self, other):

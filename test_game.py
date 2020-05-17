@@ -74,7 +74,13 @@ class Tests(unittest.TestCase):
         for _ in range(100):
             result_shot = BotAI.shot_level_1(field)
             self.assertIsNotNone(result_shot)
-        self.assertTrue(len(field.shots) > 10)
+        self.assertTrue(len(field.shots) > 100)
+
+        field = Field(4, 4, 2)
+        for _ in range(15):
+            result_shot = BotAI.shot_level_1(field)
+            self.assertIsNotNone(result_shot)
+        self.assertTrue(len(field.shots) > 14)
 
     def test_bot_shot_level_2(self):
         field = Field(10, 20, 5)
@@ -85,7 +91,18 @@ class Tests(unittest.TestCase):
         for _ in range(100):
             result_shot = BotAI.shot_level_2(field)
             self.assertIsNotNone(result_shot)
-        self.assertTrue((len(field.shots) > 10))
+        self.assertTrue((len(field.shots) > 100))
+
+        field = Field(4, 4, 2)
+        for _ in range(15):
+            result_shot = BotAI.shot_level_2(field)
+            self.assertIsNotNone(result_shot)
+        self.assertTrue(len(field.shots) > 14)
+        
+        BotAI._recommendation_level_2(0, 0, field)
+        ans = [(1, 0), (0, 1), (3, 0), (0, 3)]
+        for i in range(len(ans)):
+            self.assertTrue(ans[i] in BotAI.recommend)
 
     def test_start_game(self):
         game = Game(10, 10, 4, 1)

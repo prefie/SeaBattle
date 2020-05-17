@@ -21,11 +21,8 @@ class BotAI:
             x, y = cls._generation_random(field)
         else:
             x, y = cls.recommend.pop()
-            while field.check_shot(x, y):
-                if len(cls.recommend) < 1:
-                    x, y = cls._generation_random(field)
-                    break
-                x, y = cls.recommend.pop()
+            if field.check_shot(x, y):
+                return BotAI.shot_level_2(field)
 
         result = field.shot(x, y)
         if result:

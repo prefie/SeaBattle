@@ -9,6 +9,7 @@ from copy import deepcopy
 class Tests(unittest.TestCase):
     def test_count_cells_random_placement(self):
         field = Field(10, 10, 4)
+        self.assertTrue(field.is_empty())
         field.random_placement_ships()
         self.assertEqual(20, len(field.cells))
 
@@ -30,6 +31,7 @@ class Tests(unittest.TestCase):
 
     def test_count_ships_random_placement(self):
         field = Field(20, 20, 5)
+        self.assertTrue(field.is_empty())
         field.random_placement_ships()
         self.assertEqual(15, len(field._ships))
 
@@ -98,7 +100,7 @@ class Tests(unittest.TestCase):
             result_shot = BotAI.shot_level_2(field)
             self.assertIsNotNone(result_shot)
         self.assertTrue(len(field.shots) > 14)
-        
+
         BotAI._recommendation_level_2(0, 0, field)
         ans = [(1, 0), (0, 1), (3, 0), (0, 3)]
         for i in range(len(ans)):
@@ -130,8 +132,12 @@ class Tests(unittest.TestCase):
     def test_empty_game(self):
         game = Game(10, 10, 4, 1)
         self.assertTrue(game.player_is_win())
+        self.assertTrue(game.player_field.is_empty())
+        self.assertTrue(game.bot_field.is_empty())
         game.start()
         self.assertFalse(game.player_is_win())
+        self.assertFalse(game.player_field.is_empty())
+        self.assertFalse(game.bot_field.is_empty())
 
     def test_restart_game(self):
         game = Game(4, 4, 2, 2)
@@ -204,6 +210,60 @@ class Tests(unittest.TestCase):
         game.save_game()
         save_game = Game.load_game()
         self.assertEqual(game, save_game)
+
+    def test_undo(self):
+        game = Game(10, 10, 1, 1)
+        game.start()
+        prev_game = deepcopy(game)
+
+        game.shot((0, 0))
+        self.assertTrue(len(game.bot_field.shots) > 0)
+        self.assertTrue(len(prev_game.bot_field.shots) < 1)
+        self.assertNotEqual(game, prev_game)
+        game.undo()
+        self.assertEqual(game, prev_game)
+        self.assertTrue(game.player_current)
+
+        for i in range(10):
+            game.shot((0, i))
+            game.shot()
+        self.assertTrue(game.bot_field.check_shot(0, 9))
+        game.undo()
+        self.assertTrue(game.can_undo())
+        game.undo()
+        self.assertFalse(game.can_undo())
+
+    def test_eq_operator(self):
+        game1 = Game(4, 4, 1, 2)
+        game2 = Game(4, 4, 1, 1)
+        game3 = Game(4, 4, 1, 1)
+        self.assertNotEqual(game1, game2)
+        self.assertEqual(game2, game3)
+
+        field1 = Field(10, 10, 3)
+        field2 = Field(9, 10, 3)
+        field3 = Field(10, 10, 3)
+        field4 = Field(10, 10, 4)
+        self.assertNotEqual(field1, field2)
+        self.assertNotEqual(field3, field4)
+        self.assertEqual(field1, field3)
+        field1.shot(Cell(0, 0))
+        self.assertNotEqual(field1, field3)
+
+        self.assertNotEqual(Cell(1, 0), Cell(0, 1))
+        self.assertEqual(Cell(2, 3), Cell(2, 3))
+
+        self.assertNotEqual(Ship([Cell(0, 1)]), Ship([Cell(0, 1), Cell(0, 2)]))
+        self.assertEqual(Ship([Cell(3, 2), Cell(4, 2)]),
+                         Ship([Cell(4, 2), Cell(3, 2)]))
+
+    def test_field_fromstr(self):
+        field = Field(10, 10, 4)
+        self.assertEqual(field, Field.fromstr(str(field)))
+
+        field.random_placement_ships()
+        field.shot(Cell(1, 0))
+        self.assertEqual(field, Field.fromstr(str(field)))
 
 
 if __name__ == '__main__':

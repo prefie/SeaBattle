@@ -55,7 +55,14 @@ class Ship:
 
     def __eq__(self, other):
         """Проверка равенства кораблей"""
-        return self.cells == other.cells
+        for cell in other.cells:
+            if cell not in self.cells:
+                return False
+
+        for cell in self.cells:
+            if cell not in other.cells:
+                return False
+        return True
 
     def __str__(self):
         return '.'.join(map(str, self.cells))
@@ -171,7 +178,7 @@ class Field:
         if len(point) < 1 or len(point) > 2:
             return None
 
-        if len(point) == 1:
+        if len(point) == 1 and isinstance(point[0], Cell):
             cell = point[0]
         else:
             cell = Cell(point[0], point[1])
@@ -343,6 +350,7 @@ class Game:
         """Выстрел того, чья сейчас очередь
         Возвращает True, если попадание"""
         if (self.player_current and
+                point is not None and
                 not self.bot_field.check_shot(point[0], point[1])):
             self._remember_states_fields()
 
@@ -376,6 +384,7 @@ class Game:
 
         self.player_field, self.bot_field =\
             self._states_fields_log.pop()
+        self.player_current = True
         self._count_undo -= 1
 
     @staticmethod

@@ -27,6 +27,8 @@ class Cell:
     def fromstr(string):
         """Создание клетки из её текстового представления"""
         string_split = list(map(int, re.findall(r'\d+', string)))
+        if len(string_split) != 2:
+            a = 1
         return Cell(string_split[0], string_split[1])
 
     def __eq__(self, other):
@@ -130,11 +132,17 @@ class Field:
         return Ship(ans)
 
     def add_ship(self, ship):
-        """Добавление корабля на поле"""
+        """Возвращает True, если удалось разместить корабль"""
+        for cell in ship:
+            if (self._check_alive_neighbors(cell) or
+                    cell in self.cells):
+                return False
+
         self.cells.extend(ship)
         self._ships.append(ship)
         for cell in ship:
             self._dict_ships[cell] = ship
+        return True
 
     def check_shot(self, x, y):
         """По координатам проверяет, содержится ли точка в
@@ -223,9 +231,8 @@ class Field:
         c = 1  # Кораблей столькоклеточных
         for size_ship in range(self.max_size_ship, 0, -1):
             for _ in range(c):
-                count = count + 2 * c + 3
+                count = count + 2 * c + 2
             c += 1
-        count = count - (self.size_x + self.size_y)
         return (count <= self.size_y * self.size_x and
                 self.size_x > self.max_size_ship and
                 self.size_y > self.max_size_ship)
@@ -234,6 +241,9 @@ class Field:
         return ':'.join(map(str, self.cells))
 
     def _cells_fromstr(self, string):
+        if len(string) < 1:
+            return
+
         list_cells = []
         string_split = string.split(':')
         for cell in string_split:
@@ -244,6 +254,9 @@ class Field:
         return ':'.join(map(str, self._ships))
 
     def _ships_fromstr(self, string):
+        if len(string) < 1:
+            return
+
         list_ships = []
         string_split = string.split(':')
         for ship in string_split:
@@ -329,7 +342,8 @@ class Game:
         self.start()
 
     def shot(self, point=None):
-        """Выстрел того, чья сейчас очередь"""
+        """Выстрел того, чья сейчас очередь
+        Возвращает True, если попадание"""
         if (self.player_current and
                 not self.bot_field.check_shot(point[0], point[1])):
             self._remember_states_fields()
@@ -344,6 +358,8 @@ class Game:
 
         if result_shot is not None and not result_shot:
             self.player_current = not self.player_current
+
+        return result_shot
 
     def _remember_states_fields(self):
         player_field = Field.fromstr(str(self.player_field))

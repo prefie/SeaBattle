@@ -54,8 +54,8 @@ class Interface:
         while True:
             self.update()
 
-            if self.game.player_is_win() is not None:
-                self.the_end(self.game.player_is_win())
+            if self.game.is_player_win() is not None:
+                self.the_end(self.game.is_player_win())
 
             if self.game.player_current:
                 self.game.shot(self.click_user())

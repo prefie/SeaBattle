@@ -8,6 +8,9 @@ from battle.botAI import BotAI
 from enum import Enum
 from math import sqrt
 
+REGULAR = re.compile(
+    r'\d+;\d+;\d+;(\d+,\d+:?)*;((\d+,\d+\.?)+:?)*;(\d+,\d+\.\w+:?)*')
+
 
 class Direction(Enum):
     """Направление корабля"""
@@ -26,6 +29,9 @@ class Cell:
     @staticmethod
     def fromstr(string):
         """Создание клетки из её текстового представления"""
+        if re.match(r'\d+,\d+', string) is None:
+            raise ValueError(string)
+
         string_split = list(map(int, re.findall(r'\d+', string)))
         return Cell(string_split[0], string_split[1])
 
@@ -82,7 +88,7 @@ class Field:
         self.max_size_ship = max_size_ship
 
         if not self._check_placement() or size_x < 4 or size_y < 2:
-            raise ValueError
+            raise ValueError(size_x, size_y, max_size_ship)
 
         self.cells = []  # список живых клеток
         self.shots = {}  # список выстрелов
@@ -219,6 +225,11 @@ class Field:
     @staticmethod
     def fromstr(string):
         """Создание поля из его текстового представления"""
+
+        match = re.match(REGULAR, string)
+        if match is None or len(match.group()) != len(string):
+            raise ValueError(string)
+
         size_x, size_y, max_size_ship, cells, ships, shots = string.split(';')
         size_x, size_y, max_size_ship =\
             list(map(int, (size_x, size_y, max_size_ship)))
@@ -277,6 +288,7 @@ class Field:
     def _shots_fromstr(self, string):
         if len(string) < 1:
             return
+
         dict_shots = {}
         string_split = string.split(':')
         for shot in string_split:
@@ -388,9 +400,9 @@ class Game:
         self._count_undo -= 1
 
     @staticmethod
-    def load_game():
+    def load_game(filename='save'):
         """Возвращает игру, загруженную из файла"""
-        with open('save', 'rb') as f:
+        with open(filename, 'rb') as f:
             data = json.loads(zlib.decompress(f.read()).decode('utf-8'))
             level = int(data['level'])
             player_field = Field.fromstr(data['player_field'])
@@ -405,9 +417,9 @@ class Game:
             game.bot_field = bot_filed
             return game
 
-    def save_game(self):
+    def save_game(self, filename='save'):
         """Сохранение игры в файл"""
-        with open('save', 'wb') as f:
+        with open(filename, 'wb') as f:
             data = {
                 'level': str(self.level),
                 'player_field': str(self.player_field),
@@ -415,7 +427,7 @@ class Game:
             }
             f.write(zlib.compress(json.dumps(data).encode('utf-8')))
 
-    def player_is_win(self):
+    def is_player_win(self):
         """Возвращает True, если выиграл Игрок,
         Возвращает False, если победил бот
         И None, если игра ещё не закончилась"""

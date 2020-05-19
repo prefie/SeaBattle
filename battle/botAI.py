@@ -11,16 +11,16 @@ class BotAI:
         x, y = cls._generation_random(field)
         return field.shot(x, y)
 
-    recommend = set()
+    _recommend = set()
 
     @classmethod
     def shot_level_2(cls, field):
         """Умный случайный выстрел по полю
         Возвращает результат выстрела по полю"""
-        if len(cls.recommend) < 1:
+        if len(cls._recommend) < 1:
             x, y = cls._generation_random(field)
         else:
-            x, y = cls.recommend.pop()
+            x, y = cls._recommend.pop()
             if field.check_shot(x, y):
                 return BotAI.shot_level_2(field)
 
@@ -34,7 +34,7 @@ class BotAI:
         for i in range(-1, 2):
             for j in range(-1, 2):
                 if (i == 0 or j == 0) and (i != j):
-                    cls.recommend.add(
+                    cls._recommend.add(
                         ((x + i) % field.size_x, (y + j) % field.size_y))
 
     @classmethod

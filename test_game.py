@@ -332,7 +332,7 @@ class BotAITest(unittest.TestCase):
         BotAI._recommendation_level_2(0, 0, field)
         ans = [(1, 0), (0, 1), (3, 0), (0, 3)]
         for i in range(len(ans)):
-            self.assertTrue(ans[i] in BotAI.recommend)
+            self.assertTrue(ans[i] in BotAI._recommend)
 
 
 if __name__ == '__main__':

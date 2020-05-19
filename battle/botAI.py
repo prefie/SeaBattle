@@ -7,7 +7,7 @@ class BotAI:
     @classmethod
     def shot_level_1(cls, field):
         """Случайный выстрел по полю
-        Возвращает координаты предполагаемого выстрела"""
+        Возвращает результат выстрела по полю"""
         x, y = cls._generation_random(field)
         return field.shot(x, y)
 
@@ -16,7 +16,7 @@ class BotAI:
     @classmethod
     def shot_level_2(cls, field):
         """Умный случайный выстрел по полю
-        Возвращает координаты выстрела"""
+        Возвращает результат выстрела по полю"""
         if len(cls.recommend) < 1:
             x, y = cls._generation_random(field)
         else:

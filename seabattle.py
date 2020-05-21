@@ -12,11 +12,12 @@ def parse_args():
     """Разбор аргументов запуска"""
     parser = argparse.ArgumentParser(description='Seabattle game')
 
-    parser.add_argument('-l', '--load', action='store_true',
-                        help='load a saved game')
-    parser.add_argument('-g', '--game', nargs=4, type=int,
-                        metavar=('SIZE_Y', 'SIZE_X', 'MAX_SIZE_SHIP', 'LEVEL'),
-                        help='creating a new game')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-l', '--load', action='store_true',
+                       help='load a saved game')
+    group.add_argument('-g', '--game', nargs=4, type=int,
+                       metavar=('SIZE_Y', 'SIZE_X', 'MAX_SIZE_SHIP', 'LEVEL'),
+                       help='creating a new game')
     args = parser.parse_args()
     if args.game is None and not args.load:
         return parser.parse_args(['-h'])

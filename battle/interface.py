@@ -157,9 +157,13 @@ class Interface:
                 print('Вы вышли из игры.')
                 sys.exit(0)
             if key == ord('r'):
-                self._clear()
-                self.game.restart()
-                self._start()
+                try:
+                    self._clear()
+                    self.game.restart()
+                    self._start()
+                except _curses.error:
+                    print('Расширьте окно консоли и запустите приложение заново.')
+                    sys.exit(1)
                 break
 
     def _clear(self):

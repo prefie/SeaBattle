@@ -97,7 +97,7 @@ class Interface:
         try:
             key = self.win_bot.getch()
         except KeyboardInterrupt:
-            return self.click_user()
+            sys.exit(0)
 
         if key == ord('q'):
             curses.endwin()
@@ -142,7 +142,12 @@ class Interface:
                 sys.exit(1)
             self.win_end.box()
             self.win_end.refresh()
-            key = self.win_bot.getch()
+
+            try:
+                key = self.win_bot.getch()
+            except KeyboardInterrupt:
+                sys.exit(0)
+
             if key == ord('q'):
                 curses.endwin()
                 print('Вы вышли из игры.')

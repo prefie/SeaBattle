@@ -97,6 +97,8 @@ class Interface:
         try:
             key = self.win_bot.getch()
         except KeyboardInterrupt:
+            curses.endwin()
+            print('Вы вышли из игры.')
             sys.exit(0)
 
         if key == ord('q'):
@@ -146,6 +148,8 @@ class Interface:
             try:
                 key = self.win_bot.getch()
             except KeyboardInterrupt:
+                curses.endwin()
+                print('Вы вышли из игры.')
                 sys.exit(0)
 
             if key == ord('q'):

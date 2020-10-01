@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import unittest
-from battle.game import *
+from battle.game import Direction, Cell, Ship, Field, Game
 from battle.botAI import BotAI
 from copy import deepcopy
 

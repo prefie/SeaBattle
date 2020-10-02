@@ -9,8 +9,8 @@ class Interface:
     def __init__(self, game):
         """Создание интерфейса пользователя"""
         self.game = game
-        self.dx = game.player_field.size_x * 2 + 1
-        self.dy = game.player_field.size_y + 2
+        self.dx = game.player.field.size_x * 2 + 1
+        self.dy = game.player.field.size_y + 2
         self.window = curses.initscr()
         curses.noecho()  # Нельзя писать
         curses.curs_set(0)  # Не видно курсор
@@ -64,12 +64,12 @@ class Interface:
 
     def update(self):
         """Обновление картинки (окон с полями)"""
-        for i in self.game.player_field.cells:
+        for i in self.game.player.field.cells:
             self.win_player.addstr(i.y + 1, (i.x + 1) * 2 - 1, '#')
 
-        self._print_result_shot(self.game.player_field.shots,
+        self._print_result_shot(self.game.player.field.shots,
                                 self.win_player)
-        self._print_result_shot(self.game.bot_field.shots,
+        self._print_result_shot(self.game.bot.field.shots,
                                 self.win_bot)
 
         curses.curs_set(0)
@@ -161,8 +161,8 @@ class Interface:
                     self._clear()
                     self.game.restart()
                     self._start()
-                except _curses.error:
-                    print('Расширьте окно консоли и запустите приложение заново.')
+                except _curses.error as e:
+                    print('Расширьте окно консоли и запустите приложение заново.', e, file=sys.stderr)
                     sys.exit(1)
                 break
 

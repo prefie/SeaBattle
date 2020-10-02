@@ -36,14 +36,14 @@ def main():
             game = Game(width, height, max_size_ship, level)
 
         interface = Interface(game)
-    except ValueError:
-        print('Такая конфигурация поля игры невозможна.')
+    except ValueError as e:
+        print('Такая конфигурация поля игры невозможна.', e, file=sys.stderr)
         sys.exit(1)
-    except FileNotFoundError:
-        print('Файла сохранения нет или он некорректен.')
+    except FileNotFoundError as e:
+        print('Файла сохранения нет или он некорректен.', e, file=sys.stderr)
         sys.exit(1)
-    except _curses.error:
-        print('Расширьте окно консоли и запустите приложение заново.')
+    except _curses.error as e:
+        print('Расширьте окно консоли и запустите приложение заново.', e, file=sys.stderr)
         sys.exit(1)
 
     if not args.load:

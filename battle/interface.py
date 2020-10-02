@@ -162,6 +162,7 @@ class Interface:
                     self.game.restart()
                     self._start()
                 except _curses.error as e:
+                    curses.endwin()
                     print('Расширьте окно консоли и запустите приложение заново.', e, file=sys.stderr)
                     sys.exit(1)
                 break

@@ -3,6 +3,7 @@
 
 import argparse
 import sys
+import curses
 import _curses
 from battle.game import Game
 from battle.interface import Interface
@@ -43,6 +44,7 @@ def main():
         print('Файла сохранения нет или он некорректен.', e, file=sys.stderr)
         sys.exit(1)
     except _curses.error as e:
+        curses.endwin()
         print('Расширьте окно консоли и запустите приложение заново.', e, file=sys.stderr)
         sys.exit(1)
 

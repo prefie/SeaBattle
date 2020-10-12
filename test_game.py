@@ -157,8 +157,8 @@ class GameTest(unittest.TestCase):
 
     def test_init_game(self):
         game = Game(10, 10, 4, 2)
-        self.assertTrue(game.player_field.is_empty())
-        self.assertTrue(game.bot_field.is_empty())
+        self.assertTrue(game.player.field.is_empty())
+        self.assertTrue(game.bot.field.is_empty())
         self.assertTrue(game.is_player_win())
 
     def test_init_bad(self):
@@ -171,35 +171,35 @@ class GameTest(unittest.TestCase):
     def test_start_game(self):
         game = Game(10, 10, 4, 1)
 
-        self.assertEqual(0, len(game.player_field.cells))
-        self.assertEqual(0, len(game.bot_field.cells))
-        self.assertEqual(0, len(game.player_field._ships))
-        self.assertEqual(0, len(game.bot_field._ships))
+        self.assertEqual(0, len(game.player.field.cells))
+        self.assertEqual(0, len(game.bot.field.cells))
+        self.assertEqual(0, len(game.player.field._ships))
+        self.assertEqual(0, len(game.bot.field._ships))
 
         game.start()
 
-        self.assertEqual(20, len(game.player_field.cells))
-        self.assertEqual(20, len(game.bot_field.cells))
-        self.assertEqual(10, len(game.player_field._ships))
-        self.assertEqual(10, len(game.bot_field._ships))
+        self.assertEqual(20, len(game.player.field.cells))
+        self.assertEqual(20, len(game.bot.field.cells))
+        self.assertEqual(10, len(game.player.field._ships))
+        self.assertEqual(10, len(game.bot.field._ships))
 
         game = Game(4, 4, 2, 2)
         game.start()
 
-        self.assertEqual(4, len(game.player_field.cells))
-        self.assertEqual(4, len(game.bot_field.cells))
-        self.assertEqual(3, len(game.player_field._ships))
-        self.assertEqual(3, len(game.bot_field._ships))
+        self.assertEqual(4, len(game.player.field.cells))
+        self.assertEqual(4, len(game.bot.field.cells))
+        self.assertEqual(3, len(game.player.field._ships))
+        self.assertEqual(3, len(game.bot.field._ships))
 
     def test_empty_game(self):
         game = Game(10, 10, 4, 1)
         self.assertTrue(game.is_player_win())
-        self.assertTrue(game.player_field.is_empty())
-        self.assertTrue(game.bot_field.is_empty())
+        self.assertTrue(game.player.field.is_empty())
+        self.assertTrue(game.bot.field.is_empty())
         game.start()
         self.assertFalse(game.is_player_win())
-        self.assertFalse(game.player_field.is_empty())
-        self.assertFalse(game.bot_field.is_empty())
+        self.assertFalse(game.player.field.is_empty())
+        self.assertFalse(game.bot.field.is_empty())
 
     def test_restart_game(self):
         game = Game(10, 10, 2, 2)
@@ -213,13 +213,13 @@ class GameTest(unittest.TestCase):
         game = Game(10, 10, 4, 2)
         game.start()
         self.assertIsNotNone(game.shot((0, 0)))
-        self.assertTrue(len(game.bot_field.shots) > 0)
+        self.assertTrue(len(game.bot.field.shots) > 0)
         if not game.player_current:
             self.assertIsNotNone(game.shot())
-            self.assertTrue(len(game.player_field.shots) > 0)
+            self.assertTrue(len(game.player.field.shots) > 0)
 
         game = Game(4, 4, 2, 2)
-        game.bot_field.add_ship(Ship([Cell(0, 0), Cell(0, 1)]))
+        game.bot.field.add_ship(Ship([Cell(0, 0), Cell(0, 1)]))
         self.assertTrue(game.player_current)
         self.assertIsNotNone(game.shot((0, 2)))
         self.assertFalse(game.player_current)
@@ -232,7 +232,7 @@ class GameTest(unittest.TestCase):
         game = Game(4, 4, 1, 2)
         game.start()
         self.assertIsNone(game.is_player_win())
-        cell = game.bot_field.cells[0]
+        cell = game.bot.field.cells[0]
         game.shot((cell.x, cell.y))
         self.assertTrue(game.is_player_win())
 
@@ -253,8 +253,8 @@ class GameTest(unittest.TestCase):
         prev_game = deepcopy(game)
 
         game.shot((0, 0))
-        self.assertTrue(len(game.bot_field.shots) > 0)
-        self.assertTrue(len(prev_game.bot_field.shots) < 1)
+        self.assertTrue(len(game.bot.field.shots) > 0)
+        self.assertTrue(len(prev_game.bot.field.shots) < 1)
         self.assertNotEqual(game, prev_game)
         game.undo()
         self.assertEqual(game, prev_game)
@@ -293,7 +293,7 @@ class GameTest(unittest.TestCase):
                          Ship([Cell(4, 2), Cell(3, 2)]))
 
 
-class BotAITest(unittest.TestCase):
+class BotAITest(unittest.TestCase):  # Переписать на новую логику
 
     def test_bot_shot_level_1(self):
         field = Field(10, 20, 5)

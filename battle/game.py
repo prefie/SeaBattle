@@ -6,6 +6,7 @@ import json
 import zlib
 import logging
 from battle.botAI import BotAI
+import os
 from enum import Enum
 from math import sqrt
 
@@ -413,7 +414,7 @@ class Game:
             self._states_fields_log.pop()
         self.player_current = True
         self._count_undo -= 1
-        LOGGER.info(f"The player's last move was canceled. You can cancel: {self._count_undo}")
+        LOGGER.info(f"The player's last move was undo. You can undo: {self._count_undo}")
 
     @staticmethod
     def load_game(filename='save'):
@@ -436,6 +437,12 @@ class Game:
 
     def save_game(self, filename='save'):
         """Сохранение игры в файл"""
+
+        folder_path = os.path.dirname(filename)  # Путь к папке с файлом
+
+        if folder_path != '' and not os.path.exists(folder_path):  # Если пути не существует создаем его
+            os.makedirs(folder_path)
+
         with open(filename, 'wb') as f:
             data = {
                 'level': str(self.level),
@@ -443,7 +450,7 @@ class Game:
                 'bot_field': str(self.bot.field)
             }
             f.write(zlib.compress(json.dumps(data).encode('utf-8')))
-        LOGGER.info(f'The game was saved to a file.')
+        LOGGER.info(f'The game was saved to a file `%s`.', filename)
 
     def is_player_win(self):
         """Возвращает True, если выиграл Игрок,

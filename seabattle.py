@@ -14,7 +14,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Seabattle game')
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-l', '--load', action='store_true',
+    group.add_argument('-l', '--load', nargs=1, type=str,
+                       metavar='filename',
                        help='load a saved game')
     group.add_argument('-g', '--game', nargs=4, type=int,
                        metavar=('SIZE_Y', 'SIZE_X', 'MAX_SIZE_SHIP', 'LEVEL'),
@@ -31,7 +32,8 @@ def main():
 
     try:
         if args.load:
-            game = Game.load_game()
+            filename = args.load[0]
+            game = Game.load_game(filename)
         else:
             height, width, max_size_ship, level = args.game
             game = Game(width, height, max_size_ship, level)

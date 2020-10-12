@@ -3,6 +3,7 @@
 import curses
 import _curses
 import sys
+import os
 from collections import deque
 
 
@@ -80,9 +81,9 @@ class Interface:
 
             for i in range(len(list_logs)):
                 if i == len(list_logs) - 1:
-                    self.window.addstr(self.dy + 3 + i, 1, list_logs[i], curses.color_pair(2))
+                    self.window.addstr(self.dy + 3 + i, 0, list_logs[i], curses.color_pair(2))
                 else:
-                    self.window.addstr(self.dy + 3 + i, 1, list_logs[i])
+                    self.window.addstr(self.dy + 3 + i, 0, list_logs[i])
 
         except _curses.error:
             pass
@@ -112,21 +113,20 @@ class Interface:
         try:
             key = self.win_bot.getch()
         except KeyboardInterrupt:
-            curses.endwin()
-            print('Вы вышли из игры.')
-            sys.exit(0)
+            self._exit()
 
         if key == ord('q'):
-            curses.endwin()
-            print('Вы вышли из игры.')
-            sys.exit(0)
+            self._exit()
 
         if key == ord('r'):
             self.game.restart()
             self._start()
 
         if key == ord('s'):
-            self.game.save_game()
+            self.save_in_file()
+
+        if key == ord('h'):
+            self.help()
 
         if key == ord('u') and self.game.can_undo():
             self.game.undo()
@@ -163,24 +163,89 @@ class Interface:
             try:
                 key = self.win_bot.getch()
             except KeyboardInterrupt:
-                curses.endwin()
-                print('Вы вышли из игры.')
-                sys.exit(0)
+                self._exit()
 
             if key == ord('q'):
-                curses.endwin()
-                print('Вы вышли из игры.')
-                sys.exit(0)
+                self._exit()
+
             if key == ord('r'):
                 try:
                     self._clear()
                     self.game.restart()
                     self._start()
                 except _curses.error as e:
-                    curses.endwin()
-                    print('Расширьте окно консоли и запустите приложение заново.', e, file=sys.stderr)
-                    sys.exit(1)
+                    self._exit_with_error(e)
                 break
+
+    def help(self):
+        """Окно справки"""
+        with open('help.txt', encoding='utf-8') as f:
+            text = f.readlines()
+
+        while True:
+            curses.curs_set(0)
+            self._clear()
+
+            try:
+                for i in range(len(text)):
+                    self.window.addstr(i, 0, text[i])
+
+            except _curses.error:
+                pass
+
+            self.window.refresh()
+
+            try:
+                key = self.win_bot.getch()
+            except KeyboardInterrupt:
+                self._exit()
+
+            if key == ord('q'):
+                self._exit()
+
+            if key == ord('h'):
+                try:
+                    self._clear()
+                    self._start()
+                except _curses.error as e:
+                    self._exit_with_error(e)
+                break
+
+    def save_in_file(self):
+        """Окно для сохранения игры в файл"""
+        curses.echo()  # Можно писать
+        curses.curs_set(2)
+
+        self._clear()
+
+        try:
+            self.window.addstr(0, 0, 'Введите, в какой файл хотите сохранить текущую игру(Для отмены введите exit):')
+        except _curses.error:
+            pass
+
+        self.window.refresh()
+        string = self.window.getstr(1, 1).decode('utf-8')
+        self._clear()
+        if string == 'exit':
+            return
+
+        self.game.save_game(string)
+
+        curses.noecho()  # Нельзя писать
+        curses.curs_set(0)
+
+
+    @staticmethod
+    def _exit():
+        curses.endwin()
+        print('Вы вышли из игры.')
+        sys.exit(0)
+
+    @staticmethod
+    def _exit_with_error(error):
+        curses.endwin()
+        print('Расширьте окно консоли и запустите приложение заново.', error, file=sys.stderr)
+        sys.exit(1)
 
     def _clear(self):
         self.window.erase()

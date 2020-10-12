@@ -4,12 +4,16 @@ import random
 import re
 import json
 import zlib
+import logging
 from battle.botAI import BotAI
 from enum import Enum
 from math import sqrt
 
 REGULAR = re.compile(
     r'\d+;\d+;\d+;(\d+,\d+:?)*;((\d+,\d+\.?)+:?)*;(\d+,\d+\.\w+:?)*')
+logging.basicConfig(level=logging.INFO, filename='game.log')
+LOGGER_NAME = 'battle.game'
+LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 class Direction(Enum):
@@ -331,6 +335,7 @@ class Game:
 
     def __init__(self, size_x, size_y, max_size_ship, level):
         """Создание игры с ботом"""
+        LOGGER.info('The game is created.')
         self.level = level
         self.player = Player(Field(size_x, size_y, max_size_ship))
         self.bot = BotAI(Field(size_x, size_y, max_size_ship), level)
@@ -341,11 +346,13 @@ class Game:
 
     def start(self):
         """Начало игры со случайной расстановкой кораблей"""
+        LOGGER.info('The game started.')
         self.player.field.random_placement_ships()
         self.bot.field.random_placement_ships()
 
     def restart(self):
         """Рестарт игры"""
+        LOGGER.info('The game is restarted with the current settings.')
         self.bot.field = Field(
             self.bot.field.size_x,
             self.bot.field.size_y,
@@ -371,10 +378,14 @@ class Game:
                 not self.bot.field.check_shot(point[0], point[1])):
             self._remember_states_fields()
 
-        if self.player_current and point is not None:
+        if self.player_current and point is not None and not self.bot.field.check_shot(point[0], point[1]):
             result_shot = self.player.shot(self.bot.field, point[0], point[1])
+            LOGGER.info(f'The player made shot at (%s, %s) and {"hit" if result_shot else "missed"}',
+                        point[0], point[1])
         elif not self.player_current:
             result_shot = self.bot.shot(self.player.field)
+            LOGGER.info(f'The bot made shot at (%s, %s) and {"hit" if result_shot else "missed"}',
+                        self.bot.last_shot[0], self.bot.last_shot[1])
         else:
             result_shot = None
 
@@ -402,6 +413,7 @@ class Game:
             self._states_fields_log.pop()
         self.player_current = True
         self._count_undo -= 1
+        LOGGER.info(f"The player's last move was canceled. You can cancel: {self._count_undo}")
 
     @staticmethod
     def load_game(filename='save'):
@@ -419,6 +431,7 @@ class Game:
 
             game.player.field = player_field
             game.bot.field = bot_filed
+            LOGGER.info(f'The game was downloaded from a file.')
             return game
 
     def save_game(self, filename='save'):
@@ -430,14 +443,17 @@ class Game:
                 'bot_field': str(self.bot.field)
             }
             f.write(zlib.compress(json.dumps(data).encode('utf-8')))
+        LOGGER.info(f'The game was saved to a file.')
 
     def is_player_win(self):
         """Возвращает True, если выиграл Игрок,
         Возвращает False, если победил бот
         И None, если игра ещё не закончилась"""
         if self.bot.field.is_empty():
+            LOGGER.info('The player won.')
             return True
         if self.player.field.is_empty():
+            LOGGER.info('The bot won.')
             return False
         return None
 

@@ -3,6 +3,7 @@
 import curses
 import _curses
 import sys
+from collections import deque
 
 
 class Interface:
@@ -38,10 +39,6 @@ class Interface:
                 elif j != self.dy - 1 - 1:  # У посл. строчки нет подчёркиваний
                     self.win_player.addstr(j, i, '_')
                     self.win_bot.addstr(j, i, '_')
-        self.window.addstr(
-            self.dy + 1, (1 + self.dx)//2 - 4, "Ваше поле")
-        self.window.addstr(
-            self.dy + 1, 5 + self.dx + (1 + self.dx)//2 - 7, "Поле противника")
         self.window.refresh()
         self.win_player.refresh()
         self.win_bot.refresh()
@@ -71,6 +68,24 @@ class Interface:
                                 self.win_player)
         self._print_result_shot(self.game.bot.field.shots,
                                 self.win_bot)
+
+        with open('game.log') as f:
+            list_logs = (list(deque(f, 3)))
+
+        try:
+            self.window.addstr(
+                self.dy + 1, (1 + self.dx) // 2 - 4, "Ваше поле")
+            self.window.addstr(
+                self.dy + 1, 5 + self.dx + (1 + self.dx) // 2 - 7, "Поле противника")
+
+            for i in range(len(list_logs)):
+                if i == len(list_logs) - 1:
+                    self.window.addstr(self.dy + 3 + i, 1, list_logs[i], curses.color_pair(2))
+                else:
+                    self.window.addstr(self.dy + 3 + i, 1, list_logs[i])
+
+        except _curses.error:
+            pass
 
         curses.curs_set(0)
         self.win_player.box()

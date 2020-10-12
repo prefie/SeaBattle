@@ -7,6 +7,7 @@ class BotAI:
     def __init__(self, field, level_bot):
         self.field = field
         self.level_bot = level_bot
+        self.last_shot = None
 
         self._recommend = set()
 
@@ -18,6 +19,7 @@ class BotAI:
         """Случайный выстрел по полю
         Возвращает результат выстрела по полю"""
         x, y = self._generation_random(field)
+        self.last_shot = (x, y)
         return field.shot(x, y)
 
     @staticmethod
@@ -42,6 +44,8 @@ class BotAI:
         result = field.shot(x, y)
         if result:
             self._recommendation_level_2(x, y, field)
+
+        self.last_shot = (x, y)
         return result
 
     def _recommendation_level_2(self, x, y, field):

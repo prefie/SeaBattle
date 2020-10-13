@@ -32,13 +32,13 @@
 ## Консольная версия
 Справка по запуску: `./seabattle.py --help`
 
-(Используйте для начала новой игры: `seabattle.py [-g height width max_size_ship level]`)
+(Используйте для начала новой игры: `seabattle.py [-g height width max_size_ship]`)
 
 (Используйте для начала сохранённой игры: `seabattle.py [-l]`)
 
-Пример запуска новой игры: `./seabattle.py -g 10 10 4 2`
+Пример запуска новой игры: `./seabattle.py -g 10 10 4`
 
-Пример запуска сохранённой игры: `./seabattle.py -l`
+Пример запуска сохранённой игры: `./seabattle.py -l C:\Users\User\save.txt`
 
 ### Управление
 

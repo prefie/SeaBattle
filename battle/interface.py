@@ -232,7 +232,7 @@ class Interface:
 
         self.window.refresh()
         try:
-            string = self.window.getstr(1, 1).decode('utf-8')
+            string = self.window.getstr(1, 0).decode('utf-8')
         except KeyboardInterrupt:
             self._exit()
 

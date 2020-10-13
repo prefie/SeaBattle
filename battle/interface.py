@@ -16,6 +16,7 @@ class Interface:
         self.window = curses.initscr()
         curses.noecho()  # Нельзя писать
         curses.curs_set(0)  # Не видно курсор
+        curses.cbreak()
         curses.mousemask(1)
         curses.start_color()
         self.win_player = curses.newwin(self.dy, self.dx, 1, 1)
@@ -62,13 +63,16 @@ class Interface:
 
     def update(self):
         """Обновление картинки (окон с полями)"""
-        for i in self.game.player.field.cells:
-            self.win_player.addstr(i.y + 1, (i.x + 1) * 2 - 1, '#')
+        try:
+            for i in self.game.player.field.cells:
+                self.win_player.addstr(i.y + 1, (i.x + 1) * 2 - 1, '#')
 
-        self._print_result_shot(self.game.player.field.shots,
-                                self.win_player)
-        self._print_result_shot(self.game.bot.field.shots,
-                                self.win_bot)
+            self._print_result_shot(self.game.player.field.shots,
+                                    self.win_player)
+            self._print_result_shot(self.game.bot.field.shots,
+                                    self.win_bot)
+        except _curses.error as e:
+            self._exit_with_error(e)
 
         with open('game.log') as f:
             list_logs = (list(deque(f, 3)))
@@ -227,7 +231,11 @@ class Interface:
             pass
 
         self.window.refresh()
-        string = self.window.getstr(1, 1).decode('utf-8')
+        try:
+            string = self.window.getstr(1, 1).decode('utf-8')
+        except KeyboardInterrupt:
+            self._exit()
+
         self._clear()
         if string.lower() == 'exit':
             return

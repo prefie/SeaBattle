@@ -42,7 +42,7 @@ def main():
     except ValueError as e:
         print('Такая конфигурация поля игры невозможна.', e, file=sys.stderr)
         sys.exit(1)
-    except FileNotFoundError as e:
+    except OSError as e:
         print('Файла сохранения нет или он некорректен.', e, file=sys.stderr)
         sys.exit(1)
     except _curses.error as e:

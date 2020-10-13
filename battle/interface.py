@@ -79,13 +79,16 @@ class Interface:
 
         try:
             self.window.addstr(
-                self.dy + 1, (1 + self.dx) // 2 - 4, "Ваше поле")
+                self.dy + 1, (1 + self.dx) // 2 - 4,
+                "Ваше поле")
             self.window.addstr(
-                self.dy + 1, 5 + self.dx + (1 + self.dx) // 2 - 7, "Поле противника")
+                self.dy + 1, 5 + self.dx + (1 + self.dx) // 2 - 7,
+                "Поле противника")
 
             for i in range(len(list_logs)):
                 if i == len(list_logs) - 1:
-                    self.window.addstr(self.dy + 3 + i, 0, list_logs[i], curses.color_pair(2))
+                    self.window.addstr(self.dy + 3 + i, 0, list_logs[i],
+                                       curses.color_pair(2))
                 else:
                     self.window.addstr(self.dy + 3 + i, 0, list_logs[i])
 
@@ -225,8 +228,9 @@ class Interface:
 
         self._clear()
 
+        s = 'Введите, в какой файл сохранить текущую игру(Отменить: exit):'
         try:
-            self.window.addstr(0, 0, 'Введите, в какой файл хотите сохранить текущую игру(Для отмены введите exit):')
+            self.window.addstr(0, 0, s)
         except _curses.error:
             pass
 
@@ -255,7 +259,8 @@ class Interface:
     @staticmethod
     def _exit_with_error(error):
         curses.endwin()
-        print('Расширьте окно консоли и запустите приложение заново.', error, file=sys.stderr)
+        print('Расширьте окно консоли и запустите приложение заново.',
+              error, file=sys.stderr)
         sys.exit(1)
 
     def _clear(self):

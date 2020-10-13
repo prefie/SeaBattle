@@ -38,21 +38,21 @@ def main():
             height, width, max_size_ship = args.game
 
             level = int(input('Введите желаемый уровень Бота(1/2): '))
-            if level < 1 or level > 2:
-                raise ValueError()
             game = Game(width, height, max_size_ship, level)
 
         interface = Interface(game)
     except ValueError as e:
-        print('Такая конфигурация игры невозможна\nВведите корректные параметры поля и уровень Бота.',
+        print('Такая конфигурация игры невозможна\n',
               e, file=sys.stderr)
         sys.exit(1)
     except OSError as e:
-        print('Файла сохранения нет или он некорректен.\n', e, file=sys.stderr)
+        print('Файла сохранения нет или он некорректен.\n',
+              e, file=sys.stderr)
         sys.exit(1)
     except _curses.error as e:
         curses.endwin()
-        print('Расширьте окно консоли и запустите приложение заново.\n', e, file=sys.stderr)
+        print('Расширьте окно консоли и запустите приложение заново.\n',
+              e, file=sys.stderr)
         sys.exit(1)
 
     if not args.load:

@@ -296,43 +296,50 @@ class GameTest(unittest.TestCase):
 class BotAITest(unittest.TestCase):  # Переписать на новую логику
 
     def test_bot_shot_level_1(self):
-        field = Field(10, 20, 5)
-        result_shot = BotAI.shot_level_1(field)
+        field_bot = Field(10, 20, 5)
+        field_other = Field(10, 20, 5)
+        bot = BotAI(field_bot, 1)
+        result_shot = bot.shot(field_other)
         self.assertIsNotNone(result_shot)
-        self.assertTrue(len(field.shots) > 0)
+        self.assertTrue(len(field_other.shots) > 0)
 
         for _ in range(100):
-            result_shot = BotAI.shot_level_1(field)
+            result_shot = bot.shot(field_other)
             self.assertIsNotNone(result_shot)
-        self.assertTrue(len(field.shots) > 100)
+        self.assertTrue(len(field_other.shots) > 100)
 
         field = Field(4, 4, 2)
         for _ in range(15):
-            result_shot = BotAI.shot_level_1(field)
+            result_shot = bot.shot(field)
             self.assertIsNotNone(result_shot)
         self.assertTrue(len(field.shots) > 14)
 
     def test_bot_shot_level_2(self):
-        field = Field(10, 20, 5)
-        result_shot = BotAI.shot_level_2(field)
+        field_bot = Field(10, 20, 5)
+        field_other = Field(10, 20, 5)
+        bot = BotAI(field_bot, 2)
+
+        result_shot = bot.shot(field_other)
         self.assertIsNotNone(result_shot)
-        self.assertTrue(len(field.shots) > 0)
+        self.assertTrue(len(field_other.shots) > 0)
 
         for _ in range(100):
-            result_shot = BotAI.shot_level_2(field)
+            result_shot = bot.shot(field_other)
             self.assertIsNotNone(result_shot)
-        self.assertTrue((len(field.shots) > 100))
+        self.assertTrue((len(field_other.shots) > 100))
 
         field = Field(4, 4, 2)
         for _ in range(15):
-            result_shot = BotAI.shot_level_2(field)
+            result_shot = bot.shot(field)
             self.assertIsNotNone(result_shot)
         self.assertTrue(len(field.shots) > 14)
 
-        BotAI._recommendation_level_2(0, 0, field)
+        bot = BotAI(field_bot, 2)
+
+        bot._recommendation_level_2(0, 0, field)
         ans = [(1, 0), (0, 1), (3, 0), (0, 3)]
         for i in range(len(ans)):
-            self.assertTrue(ans[i] in BotAI._recommend)
+            self.assertTrue(ans[i] in bot._recommend)
 
 
 if __name__ == '__main__':

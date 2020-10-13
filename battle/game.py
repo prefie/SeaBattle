@@ -352,7 +352,9 @@ class Game:
 
     def __init__(self, size_x, size_y, max_size_ship, level):
         """Создание игры с ботом"""
-        LOGGER.info('The game is created.')
+        if level < 1 or level > BotAI.number_levels:
+            raise ValueError('Incorrect level of the bot.')
+
         self.level = level
         self.player = Player(Field(size_x, size_y, max_size_ship))
         self.bot = BotAI(Field(size_x, size_y, max_size_ship), level)
@@ -360,6 +362,7 @@ class Game:
 
         self._count_undo = int(sqrt(max(size_x, size_y)))
         self._states_fields_log = []
+        LOGGER.info('The game is created.')
 
     def start(self):
         """Начало игры со случайной расстановкой кораблей"""
@@ -395,14 +398,17 @@ class Game:
                 not self.bot.field.check_shot(point[0], point[1])):
             self._remember_states_fields()
 
-        if self.player_current and point is not None and not self.bot.field.check_shot(point[0], point[1]):
+        if (self.player_current and point is not None
+                and not self.bot.field.check_shot(point[0], point[1])):
             result_shot = self.player.shot(self.bot.field, point[0], point[1])
-            LOGGER.info(f'The player made shot at (%s, %s) and {"hit" if result_shot else "missed"}',
-                        point[0], point[1])
+            LOGGER.info(f'The player made shot at (%s, %s) and %s',
+                        point[0], point[1], "hit" if result_shot else "missed")
         elif not self.player_current:
             result_shot = self.bot.shot(self.player.field)
-            LOGGER.info(f'The bot made shot at (%s, %s) and {"hit" if result_shot else "missed"}',
-                        self.bot.last_shot[0], self.bot.last_shot[1])
+            inf = "hit" if result_shot else "missed"
+            LOGGER.info(f'The bot made shot at (%s, %s) and %s',
+                        self.bot.last_shot[0], self.bot.last_shot[1],
+                        "hit" if result_shot else "missed")
         else:
             result_shot = None
 
@@ -430,7 +436,8 @@ class Game:
             self._states_fields_log.pop()
         self.player_current = True
         self._count_undo -= 1
-        LOGGER.info(f"The player's last move was undo. You can undo: {self._count_undo}")
+        LOGGER.info(f"The player's last move was undo. You can undo: %s",
+                    self._count_undo)
 
     @staticmethod
     def load_game(filename='save'):
@@ -454,9 +461,9 @@ class Game:
     def save_game(self, filename='save'):
         """Сохранение игры в файл"""
 
-        folder_path = os.path.dirname(filename)  # Путь к папке с файлом
+        folder_path = os.path.dirname(filename)
 
-        if folder_path != '' and not os.path.exists(folder_path):  # Если пути не существует создаем его
+        if folder_path != '' and not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
         try:

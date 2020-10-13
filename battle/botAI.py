@@ -4,6 +4,8 @@ import random
 
 
 class BotAI:
+    number_levels = 2
+
     def __init__(self, field, level_bot):
         self.field = field
         self.level_bot = level_bot
@@ -13,7 +15,10 @@ class BotAI:
 
     def shot(self, field):
         """Выстрел по полю, возвращает результат выстрела"""
-        return self._shot_level_2(field) if self.level_bot == 2 else self._shot_level_1(field)
+        if self.level_bot == 2:
+            return self._shot_level_2(field)
+        else:
+            return self._shot_level_1(field)
 
     def _shot_level_1(self, field):
         """Случайный выстрел по полю

@@ -3,7 +3,7 @@
 import curses
 import _curses
 import sys
-import os
+import battle.game
 from collections import deque
 
 
@@ -168,6 +168,9 @@ class Interface:
             if key == ord('q'):
                 self._exit()
 
+            if key == ord('h'):
+                self.help()
+
             if key == ord('r'):
                 try:
                     self._clear()
@@ -226,7 +229,7 @@ class Interface:
         self.window.refresh()
         string = self.window.getstr(1, 1).decode('utf-8')
         self._clear()
-        if string == 'exit':
+        if string.lower() == 'exit':
             return
 
         self.game.save_game(string)
@@ -234,9 +237,9 @@ class Interface:
         curses.noecho()  # Нельзя писать
         curses.curs_set(0)
 
-
     @staticmethod
     def _exit():
+        battle.game.LOGGER.info('The player is out of the game.')
         curses.endwin()
         print('Вы вышли из игры.')
         sys.exit(0)

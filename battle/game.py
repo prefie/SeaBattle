@@ -12,9 +12,25 @@ from math import sqrt
 
 REGULAR = re.compile(
     r'\d+;\d+;\d+;(\d+,\d+:?)*;((\d+,\d+\.?)+:?)*;(\d+,\d+\.\w+:?)*')
-logging.basicConfig(level=logging.INFO, filename='game.log')
+
+
+def get_file_handler():
+    file_handler = logging.FileHandler('game.log')
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s [%(levelname)s <%(name)s>] %(message)s'))
+    return file_handler
+
+
+def get_logger(name):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(get_file_handler())
+    return logger
+
+
 LOGGER_NAME = 'battle.game'
-LOGGER = logging.getLogger(LOGGER_NAME)
+LOGGER = get_logger(LOGGER_NAME)
 
 
 class Direction(Enum):
@@ -443,14 +459,17 @@ class Game:
         if folder_path != '' and not os.path.exists(folder_path):  # Если пути не существует создаем его
             os.makedirs(folder_path)
 
-        with open(filename, 'wb') as f:
-            data = {
-                'level': str(self.level),
-                'player_field': str(self.player.field),
-                'bot_field': str(self.bot.field)
-            }
-            f.write(zlib.compress(json.dumps(data).encode('utf-8')))
-        LOGGER.info(f'The game was saved to a file `%s`.', filename)
+        try:
+            with open(filename, 'wb') as f:
+                data = {
+                    'level': str(self.level),
+                    'player_field': str(self.player.field),
+                    'bot_field': str(self.bot.field)
+                }
+                f.write(zlib.compress(json.dumps(data).encode('utf-8')))
+            LOGGER.info(f'The game was saved to a file `%s`.', filename)
+        except Exception as e:
+            LOGGER.error('Failed to save in `%s`: %s', filename, e)
 
     def is_player_win(self):
         """Возвращает True, если выиграл Игрок,

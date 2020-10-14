@@ -479,10 +479,8 @@ class Game:
         Возвращает False, если победил бот
         И None, если игра ещё не закончилась"""
         if self.bot.field.is_empty():
-            LOGGER.info('The player won.')
             return True
         if self.player.field.is_empty():
-            LOGGER.info('The bot won.')
             return False
         return None
 

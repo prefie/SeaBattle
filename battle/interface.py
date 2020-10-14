@@ -16,7 +16,6 @@ class Interface:
         self.window = curses.initscr()
         curses.noecho()  # Нельзя писать
         curses.curs_set(0)  # Не видно курсор
-        curses.cbreak()
         curses.mousemask(1)
         curses.start_color()
         self.win_player = curses.newwin(self.dy, self.dx, 1, 1)
@@ -54,6 +53,10 @@ class Interface:
             self.update()
 
             if self.game.is_player_win() is not None:
+                if self.game.is_player_win():
+                    battle.game.LOGGER.info('The player won.')
+                else:
+                    battle.game.LOGGER.info('The bot won.')
                 self.the_end(self.game.is_player_win())
 
             if self.game.player_current:
@@ -117,6 +120,7 @@ class Interface:
         """Обработка клика пользователя.
         Возвращает координаты относительно игрового поля"""
         self.update()
+        key = None
         try:
             key = self.win_bot.getch()
         except KeyboardInterrupt:
@@ -167,6 +171,7 @@ class Interface:
             self.win_end.box()
             self.win_end.refresh()
 
+            key = None
             try:
                 key = self.win_bot.getch()
             except KeyboardInterrupt:
@@ -205,6 +210,7 @@ class Interface:
 
             self.window.refresh()
 
+            key = None
             try:
                 key = self.win_bot.getch()
             except KeyboardInterrupt:
@@ -216,7 +222,8 @@ class Interface:
             if key == ord('h'):
                 try:
                     self._clear()
-                    self._start()
+                    if self.game.is_player_win() is None:
+                        self._start()
                 except _curses.error as e:
                     self._exit_with_error(e)
                 break
@@ -235,19 +242,21 @@ class Interface:
             pass
 
         self.window.refresh()
+
+        string = None
         try:
             string = self.window.getstr(1, 0).decode('utf-8')
         except KeyboardInterrupt:
             self._exit()
 
         self._clear()
+        curses.noecho()  # Нельзя писать
+        curses.curs_set(0)
+
         if string.lower() == 'exit':
             return
 
         self.game.save_game(string)
-
-        curses.noecho()  # Нельзя писать
-        curses.curs_set(0)
 
     @staticmethod
     def _exit():

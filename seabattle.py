@@ -18,7 +18,7 @@ def parse_args():
                        metavar='filename',
                        help='load a saved game')
     group.add_argument('-g', '--game', nargs=3, type=int,
-                       metavar=('SIZE_Y', 'SIZE_X', 'MAX_SIZE_SHIP'),
+                       metavar=('SIZE_X', 'SIZE_Y', 'MAX_SIZE_SHIP'),
                        help='creating a new game')
     args = parser.parse_args()
     if args.game is None and not args.load:
@@ -35,7 +35,7 @@ def main():
             filename = args.load[0]
             game = Game.load_game(filename)
         else:
-            height, width, max_size_ship = args.game
+            width, height, max_size_ship = args.game
 
             level = int(input('Введите желаемый уровень Бота(1/2): '))
             game = Game(width, height, max_size_ship, level)
@@ -45,10 +45,13 @@ def main():
         print('Такая конфигурация игры невозможна\n',
               e, file=sys.stderr)
         sys.exit(1)
-    except OSError as e:
+    except FileNotFoundError as e:
         print('Файла сохранения нет или он некорректен.\n',
               e, file=sys.stderr)
         sys.exit(1)
+    except IsADirectoryError as e:
+        print('Ожидался файл, но это директория.',
+              e, file=sys.stderr)
     except _curses.error as e:
         curses.endwin()
         print('Расширьте окно консоли и запустите приложение заново.\n',

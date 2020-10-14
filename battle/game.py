@@ -352,9 +352,6 @@ class Game:
 
     def __init__(self, size_x, size_y, max_size_ship, level):
         """Создание игры с ботом"""
-        if level < 1 or level > BotAI.number_levels:
-            raise ValueError('Incorrect level of the bot.')
-
         self.level = level
         self.player = Player(Field(size_x, size_y, max_size_ship))
         self.bot = BotAI(Field(size_x, size_y, max_size_ship), level)
@@ -405,7 +402,6 @@ class Game:
                         point[0], point[1], "hit" if result_shot else "missed")
         elif not self.player_current:
             result_shot = self.bot.shot(self.player.field)
-            inf = "hit" if result_shot else "missed"
             LOGGER.info(f'The bot made shot at (%s, %s) and %s',
                         self.bot.last_shot[0], self.bot.last_shot[1],
                         "hit" if result_shot else "missed")

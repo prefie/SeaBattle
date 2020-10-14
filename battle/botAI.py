@@ -7,6 +7,9 @@ class BotAI:
     number_levels = 2
 
     def __init__(self, field, level_bot):
+        if level_bot < 1 or level_bot > BotAI.number_levels:
+            raise ValueError('Incorrect level of the bot.')
+
         self.field = field
         self.level_bot = level_bot
         self.last_shot = None
